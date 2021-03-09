@@ -11,6 +11,7 @@ Description –
 #include <stdlib.h> 
 #include <string.h>
 #include <winsock2.h>
+#include <WS2tcpip.h>
 
 #define SERVER_ADDRESS_STR "127.0.0.1"
 

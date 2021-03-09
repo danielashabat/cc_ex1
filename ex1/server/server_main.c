@@ -38,7 +38,7 @@ int main(int argc, char* argv[]) {
         return;
     }
 
-    MainSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+    MainSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_TCP);//UDP
 
     if (MainSocket == INVALID_SOCKET)
     {
