@@ -7,20 +7,24 @@ Description –
  */
  /*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 
+
+//#define _WINSOCK_DEPRECATED_NO_WARNINGS
+
 #include <stdio.h>
 #include <stdlib.h> 
 #include <string.h>
 #include <winsock2.h>
-
+#include <WS2tcpip.h>
 
 #define SERVER_ADDRESS_STR "127.0.0.1"
 
 
 int main(int argc, char* argv[]) {
     int port = 8888;
+    char IP[] =SERVER_ADDRESS_STR;
    
     SOCKET MainSocket = INVALID_SOCKET;
-    unsigned long Address;
+    struct sockaddr_in Address;
     SOCKADDR_IN service;
     int bindRes;
     int ListenRes;
@@ -38,7 +42,7 @@ int main(int argc, char* argv[]) {
         return;
     }
 
-    MainSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_TCP);//UDP
+    MainSocket = socket(AF_INET, SOCK_DGRAM, 0);//UDP
 
     if (MainSocket == INVALID_SOCKET)
     {
@@ -47,17 +51,10 @@ int main(int argc, char* argv[]) {
     }
 
     //create a sockaddr_in 
-
-    Address = inet_addr(SERVER_ADDRESS_STR);
-    if (Address == INADDR_NONE)
-    {
-        printf("The string \"%s\" cannot be converted into an ip address. ending program.\n",
-            SERVER_ADDRESS_STR);
-        return 1;;
-    }
+    
 
     service.sin_family = AF_INET;
-    service.sin_addr.s_addr = Address;
+    InetPton(AF_INET, IP, &service.sin_addr.s_addr);//if not working use TEXT("127.0.0.1")
     service.sin_port = htons(port);
     /*bind*/
 

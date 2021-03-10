@@ -42,7 +42,7 @@ int main(int argc, char* argv[]) {
 		return FAIL;
 	}
 	// Create a socket.
-	client_socket = socket(AF_INET, SOCK_DGRAM, IPPROTO_TCP);
+	client_socket = socket(AF_INET, SOCK_DGRAM, 0);//UDP
 
 	// Check for errors to ensure that the socket is a valid socket.
 	if (client_socket == INVALID_SOCKET) {
@@ -54,24 +54,24 @@ int main(int argc, char* argv[]) {
 
 	//can remove connect in UDP
 
-	//Create a sockaddr_in object clientService and set  values.
-	clientService.sin_family = AF_INET;
-	clientService.sin_addr.s_addr = inet_addr(IP); //Setting the IP address to connect to
-	clientService.sin_port = htons(port); //Setting the port to connect to.
+	////Create a sockaddr_in object clientService and set  values.
+	//clientService.sin_family = AF_INET;
+	//InetPton(AF_INET, SERVER_ADDRESS_STR, &clientService.sin_addr.s_addr);
+	//clientService.sin_port = htons(port); //Setting the port to connect to.
 
-										  /*
-										  AF_INET is the Internet address family.
-										  */
-										  // Call the connect function, passing the created socket and the sockaddr_in structure as parameters. 
-										  // Check for general errors.
+	//									  /*
+	//									  AF_INET is the Internet address family.
+	//									  */
+	//									  // Call the connect function, passing the created socket and the sockaddr_in structure as parameters. 
+	//									  // Check for general errors.
 
-	if (SOCKET_ERROR == connect(client_socket, (SOCKADDR*)&clientService, sizeof(clientService))) {
-		closesocket(client_socket);
-		WSACleanup();
-		return 1;
-	}
+	//if (SOCKET_ERROR == connect(client_socket, (SOCKADDR*)&clientService, sizeof(clientService))) {
+	//	closesocket(client_socket);
+	//	WSACleanup();
+	//	return 1;
+	//}
 
-	printf("Connected to server on %s:%d\n", IP, port);
+	//printf("Connected to server on %s:%d\n", IP, port);
 
 	printf("bye client\n");
 	return 0;
