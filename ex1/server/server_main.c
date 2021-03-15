@@ -8,7 +8,7 @@ Description –
  /*oOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoOoO*/
 
 
-//#define _WINSOCK_DEPRECATED_NO_WARNINGS
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
 
 #include <stdio.h>
 #include <stdlib.h> 
@@ -16,23 +16,24 @@ Description –
 #include <winsock2.h>
 #include <WS2tcpip.h>
 
-#define SERVER_ADDRESS_STR "127.0.0.1"
+#include "common.h"
 
 
 int main(int argc, char* argv[]) {
     int port = 8888;
     char IP[] =SERVER_ADDRESS_STR;
+    int count = 0;
    
-    SOCKET MainSocket = INVALID_SOCKET;
-    struct sockaddr_in Address;
-    SOCKADDR_IN service;
+    SOCKET RecvSocket = INVALID_SOCKET;
+    SOCKADDR_IN SenderAddr;
     int bindRes;
-    int ListenRes;
+    int iResult;
+
+    
 
     // Initialize Winsock.
     WSADATA wsaData;
     int StartupRes = WSAStartup(MAKEWORD(2, 2), &wsaData);
-    SOCKET AcceptSocket;
     int program_running = 1;
     int i = 0;
     if (StartupRes != NO_ERROR)
@@ -42,9 +43,9 @@ int main(int argc, char* argv[]) {
         return;
     }
 
-    MainSocket = socket(AF_INET, SOCK_DGRAM, 0);//UDP
+    RecvSocket = socket(AF_INET, SOCK_DGRAM, 0);//UDP
 
-    if (MainSocket == INVALID_SOCKET)
+    if (RecvSocket == INVALID_SOCKET)
     {
         printf("Error at socket( ): %ld\n", WSAGetLastError());
         return 1;
@@ -53,19 +54,42 @@ int main(int argc, char* argv[]) {
     //create a sockaddr_in 
     
 
-    service.sin_family = AF_INET;
-    InetPton(AF_INET, IP, &service.sin_addr.s_addr);//if not working use TEXT("127.0.0.1")
-    service.sin_port = htons(port);
+    SenderAddr.sin_family = AF_INET;
+    SenderAddr.sin_addr.s_addr = inet_addr(SERVER_ADDRESS_STR);
+    SenderAddr.sin_port = htons(port);
     /*bind*/
 
-    bindRes = bind(MainSocket, (SOCKADDR*)&service, sizeof(service));
+    bindRes = bind(RecvSocket, (SOCKADDR*)&SenderAddr, sizeof(SenderAddr));
     if (bindRes == SOCKET_ERROR)
     {
         printf("bind( ) failed with error %ld. Ending program\n", WSAGetLastError());
         return 1;
     }
 
+    char RecvBuf[MAX_BUFFER_SIZE];
+    int SenderAddrSize = sizeof(SenderAddr);
 
-	printf("bye server\n");
+
+   
+    count = recvfrom(RecvSocket,
+        RecvBuf, MAX_BUFFER_SIZE, 0, (SOCKADDR*)&SenderAddr, &SenderAddrSize);
+    if (count == SOCKET_ERROR) {
+        wprintf(L"recvfrom failed with error %d\n", WSAGetLastError());
+        return FAIL;
+    }
+    printf("-SERVER- recieved from client : %s\n", RecvBuf);
+    // Close the socket when finished receiving datagrams
+    wprintf(L"Finished receiving. Closing socket.\n");
+    iResult = closesocket(RecvSocket);
+    if (iResult == SOCKET_ERROR) {
+        wprintf(L"closesocket failed with error %d\n", WSAGetLastError());
+        return FAIL;
+    }
+
+    //-----------------------------------------------
+    // Clean up and exit.
+    printf("bye server\n");
+    wprintf(L"Exiting.\n");
+    WSACleanup();
 	return 0;
 }
