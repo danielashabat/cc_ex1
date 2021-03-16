@@ -85,6 +85,16 @@ int main(int argc, char* argv[]) {
         wprintf(L"closesocket failed with error %d\n", WSAGetLastError());
         return FAIL;
     }
+    //-----------------------------------------------
+
+    //file handling 
+  
+    //FILE* newfileptr;
+    //newfileptr = fopen("newfile.jpg", "wb");  // Open the file in binary mode
+    //fwrite(temp, 1, filelen, newfileptr);
+    //fclose(newfileptr);
+
+
 
     //-----------------------------------------------
     // Clean up and exit.

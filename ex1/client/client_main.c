@@ -16,16 +16,19 @@ Description –
 #include <WS2tcpip.h>
 
 #include "common.h"// common defines for server and client 
-#define INFORMATION_LEN_BITS 16
-#define BUF_SIZE 2//buffer size in bytes
+#include "encoder.h"
 
-void convert_byte_to_bits(char byte, char bits_array[]);
-void encoder(FILE* fileptr, long filelen, char* encoded_file);
+
+#define FILE_LEN 100//verify it
+
+
+
 
 int main(int argc, char* argv[]) {
 
 	char IP[] = SERVER_ADDRESS_STR;
 	int port = 8888;
+	char filename[FILE_LEN] = "myfile.txt";
 	int count;
 	SOCKET client_socket;
 	SOCKADDR_IN RecvAddr;
@@ -61,16 +64,16 @@ int main(int argc, char* argv[]) {
 //---------------------------------------------
 	//file handling 
 	FILE* fileptr;
-	fileptr = fopen("myfile.txt", "rb");  // Open the file in binary mode
+	fileptr = fopen(filename, "rb");  // Open the file in binary mode
 	long filelen;
-	char* encoded_file;
+	char* encoded_file;//array of chars, each char value can be '0' or '1' (NOT the ASCI presentation)
 
 	
 	fseek(fileptr, 0, SEEK_END);          // Jump to the end of the file
 	filelen = ftell(fileptr);             // Get the current byte offset in the file
 	rewind(fileptr);                      // Jump back to the beginning of the file
 
-	encoded_file = (char*)malloc(filelen*8);//allocate memory for the bits file 
+	encoded_file = (char*)malloc(filelen*8);//allocate memory for the encoded file 
 	encoder(fileptr, filelen, encoded_file);//encode file from bytes to bits 
 
 	
@@ -81,9 +84,9 @@ int main(int argc, char* argv[]) {
 
 
 
-
-
 //---------------------------------------------
+	//sending messages
+
 	char SendBuf[100] ="hello";//for debuging
 
 	printf("-CLIENT- sending to server : %s\n", SendBuf);
@@ -96,7 +99,7 @@ int main(int argc, char* argv[]) {
 	}
 
 
-	free(encoded_file);
+	
 	    // When the application is finished sending, close the socket.
     wprintf(L"Finished sending. Closing socket.\n");
     iResult = closesocket(client_socket);
@@ -107,6 +110,8 @@ int main(int argc, char* argv[]) {
     }
     //---------------------------------------------
     // Clean up and quit.
+	free(encoded_file);
+
     wprintf(L"Exiting.\n");
     WSACleanup();
 	printf("bye client\n");
@@ -114,39 +119,3 @@ int main(int argc, char* argv[]) {
 }
 
 
-void convert_byte_to_bits(char byte, char bits_array[]) {
-	printf("given byte: 0X%hhx\n",byte);
-	unsigned char mask = 1; // Bit mask
-
-	// Extract the bits
-	for (int i = 0; i < 8; i++) {
-		// Mask each bit in the byte and store it
-		bits_array[8 - i - 1] = (byte & (mask << i)) != 0;
-	}
-	// For debug purposes, lets print the received data
-	printf("convert: ");
-	for (int i = 0; i < 8; i++) {
-		printf("%d", bits_array[i]);
-	}
-	printf("\n");
-	return;
-}
-
-void encoder(FILE* fileptr,long filelen, char* encoded_file) {
-
-	char buffer;
-	unsigned char bits[8] = { 0 };
-
-	for (int i = 0; i < filelen; i++) {
-		fread(&buffer, 1, 1, fileptr); // Read in the entire file
-		convert_byte_to_bits(buffer, bits);
-		memcpy(encoded_file + i * 8, bits, 8);
-	}
-
-	printf("encoded file: ");
-	for (int i = 0; i < filelen * 8; i++) {
-		printf("%d", encoded_file[i]);
-	}
-	printf("\n");
-
-}
