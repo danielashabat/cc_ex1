@@ -2,7 +2,6 @@
 #define	COMMON_H
 
 #define SERVER_ADDRESS_STR "127.0.0.1"
-#define MAX_BUFFER_SIZE 100
 typedef enum { FAIL = 1 } return_values;
 
 

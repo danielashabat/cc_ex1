@@ -73,7 +73,7 @@ int main(int argc, char* argv[]) {
 	filelen = ftell(fileptr);             // Get the current byte offset in the file
 	rewind(fileptr);                      // Jump back to the beginning of the file
 
-	encoded_file = (char*)malloc(filelen*8);//allocate memory for the encoded file 
+	encoded_file = (char*)malloc(filelen*8*sizeof(char));//allocate memory for the encoded file 
 	encoder(fileptr, filelen, encoded_file);//encode file from bytes to bits 
 
 	
