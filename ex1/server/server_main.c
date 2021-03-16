@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
     int count = 0;
    
     SOCKET RecvSocket = INVALID_SOCKET;
-    SOCKADDR_IN SenderAddr;
+    SOCKADDR_IN ServerAddr;
     int bindRes;
     int iResult;
 
@@ -54,12 +54,12 @@ int main(int argc, char* argv[]) {
     //create a sockaddr_in 
     
 
-    SenderAddr.sin_family = AF_INET;
-    SenderAddr.sin_addr.s_addr = inet_addr(SERVER_ADDRESS_STR);
-    SenderAddr.sin_port = htons(port);
+    ServerAddr.sin_family = AF_INET;
+    ServerAddr.sin_addr.s_addr = inet_addr(SERVER_ADDRESS_STR);
+    ServerAddr.sin_port = htons(port);
     /*bind*/
 
-    bindRes = bind(RecvSocket, (SOCKADDR*)&SenderAddr, sizeof(SenderAddr));
+    bindRes = bind(RecvSocket, (SOCKADDR*)&ServerAddr, sizeof(ServerAddr));
     if (bindRes == SOCKET_ERROR)
     {
         printf("bind( ) failed with error %ld. Ending program\n", WSAGetLastError());
@@ -67,12 +67,12 @@ int main(int argc, char* argv[]) {
     }
 
     char RecvBuf[MAX_BUFFER_SIZE];
-    int SenderAddrSize = sizeof(SenderAddr);
+    int ServerAddrSize = sizeof(ServerAddr);
 
 
    
     count = recvfrom(RecvSocket,
-        RecvBuf, MAX_BUFFER_SIZE, 0, (SOCKADDR*)&SenderAddr, &SenderAddrSize);
+        RecvBuf, MAX_BUFFER_SIZE, 0, (SOCKADDR*)&ServerAddr, &ServerAddrSize);
     if (count == SOCKET_ERROR) {
         wprintf(L"recvfrom failed with error %d\n", WSAGetLastError());
         return FAIL;
