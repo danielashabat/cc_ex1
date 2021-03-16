@@ -84,7 +84,7 @@ int main(int argc, char* argv[]) {
 
 
 //---------------------------------------------
-	char SendBuf[100] ;//for debuging
+	char SendBuf[100] ="hello";//for debuging
 
 	printf("-CLIENT- sending to server : %s\n", SendBuf);
 	count = sendto(client_socket,SendBuf, sizeof(SendBuf), 0, (SOCKADDR*)&RecvAddr, sizeof(RecvAddr));
