@@ -67,15 +67,21 @@ int main(int argc, char* argv[]) {
 	fileptr = fopen(filename, "rb");  // Open the file in binary mode
 	long filelen;
 	char* encoded_file;//array of chars, each char value can be '0' or '1' (NOT the ASCI presentation)
+	char* hamming_send=NULL;
+	int send_len;
 
-	
 	fseek(fileptr, 0, SEEK_END);          // Jump to the end of the file
 	filelen = ftell(fileptr);             // Get the current byte offset in the file
 	rewind(fileptr);                      // Jump back to the beginning of the file
 
 	encoded_file = (char*)malloc(filelen*8*sizeof(char));//allocate memory for the encoded file 
 	encoder(fileptr, filelen, encoded_file);//encode file from bytes to bits 
-
+	hamming_send = hamming(filelen*8, encoded_file , &send_len);
+	char* string_out = NULL;
+	string_out=(char*)malloc(send_len * 8 * sizeof(char));
+	printf("hamming_send is %s\n", hamming_send);
+	printf("number of words %d\n", send_len);
+	encoder_srting(hamming_send, string_out);
 	
 	fclose(fileptr); // Close the file
 
