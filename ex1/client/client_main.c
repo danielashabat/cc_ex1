@@ -69,6 +69,7 @@ int main(int argc, char* argv[]) {
 	char* encoded_file;//array of chars, each char value can be '0' or '1' (NOT the ASCI presentation)
 	char* hamming_send=NULL;
 	int send_len;
+	int len_in;
 
 	fseek(fileptr, 0, SEEK_END);          // Jump to the end of the file
 	filelen = ftell(fileptr);             // Get the current byte offset in the file
@@ -81,8 +82,10 @@ int main(int argc, char* argv[]) {
 	string_out=(char*)malloc(send_len * 8 * sizeof(char));
 	printf("hamming_send is %s\n", hamming_send);
 	printf("number of words %d\n", send_len);
-	encoder_srting(hamming_send, string_out);
+	encoder_srting(hamming_send, string_out, &len_in);
+	char* hamming_reverse = NULL;
 	
+	hamming_reverse = reverse_hamming(string_out, len_in); // string_out
 	fclose(fileptr); // Close the file
 
 	//insert hamming code 

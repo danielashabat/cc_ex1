@@ -46,13 +46,14 @@ void encoder(FILE* fileptr, long filelen, char* encoded_file) {
 
 }
 
-void encoder_srting(char* string_in, char* string_out) {
+void encoder_srting(char* string_in, char* string_out, int* len) {
 	unsigned char bits[8] = { 0 };
 	
 	for (int i = 0; i < strlen(string_in); i++) {
 		convert_byte_to_bits(string_in[i], bits);
 		memcpy(string_out + i * 8, bits, 8);
 	}
+	*len = strlen(string_in) * 8;
 	printf(">>>>>>encoded string: ");
 	for (int i = 0; i < strlen(string_in) * 8; i++) {
 		printf("%d", string_out[i]);
@@ -155,7 +156,7 @@ char* hamming(int input_len, char* encoded_file, int *send_len) {
 		}
 		else d15 = '0';
 
-		
+
 		output[3 - 1 + (15 * i)] = d3;
 		output[5 - 1 + (15 * i)] = d5;
 		output[6 - 1 + (15 * i)] = d6;
@@ -172,7 +173,7 @@ char* hamming(int input_len, char* encoded_file, int *send_len) {
 		output[4 - 1 + (15 * i)] = (c_4 % 2) ? '1' : '0';
 		output[8 - 1 + (15 * i)] = (c_8 % 2) ? '1' : '0';
 
-	
+
 	}
 	output[(frames_num * 15)] = '\0';
 	printf(">>>output is %s\n", output);
@@ -182,7 +183,7 @@ char* hamming(int input_len, char* encoded_file, int *send_len) {
 	*send_len = number_of_letters;
 	char temp[9];
 	//char c;
-	for (int j = 0; j < number_of_letters; j++) { ///number_of_letters
+	for (int j = 0; j < number_of_letters - 1; j++) { ///number_of_letters
 		temp[0] = output[(1 - 1) + (8 * j)];
 		temp[1] = output[(2 - 1) + (8 * j)];
 		temp[2] = output[(3 - 1) + (8 * j)];
@@ -192,7 +193,31 @@ char* hamming(int input_len, char* encoded_file, int *send_len) {
 		temp[6] = output[(7 - 1) + (8 * j)];
 		temp[7] = output[(8 - 1) + (8 * j)];
 		temp[8] = '\0';
-		output_letters[j]= strtol(temp, 0, 2);
+		output_letters[j] = strtol(temp, 0, 2);
+	}
+	if ((frames_num * 15) % 8 == 0){
+		for (int j = number_of_letters - 1; j < number_of_letters ; j++) { ///number_of_letters
+			temp[0] = output[(1 - 1) + (8 * j)];
+			temp[1] = output[(2 - 1) + (8 * j)];
+			temp[2] = output[(3 - 1) + (8 * j)];
+			temp[3] = output[(4 - 1) + (8 * j)];
+			temp[4] = output[(5 - 1) + (8 * j)];
+			temp[5] = output[(6 - 1) + (8 * j)];
+			temp[6] = output[(7 - 1) + (8 * j)];
+			temp[7] = output[(8 - 1) + (8 * j)];
+			temp[8] = '\0';
+			output_letters[j] = strtol(temp, 0, 2);
+		}
+
+}
+	else {
+		temp[0] = temp[1] = temp[2] = temp[3] = temp[4] = temp[5] = temp[6] = temp[7] = '0';
+		for (int j = 0; j < ((frames_num * 15) % 8); j++) {
+			temp[j] = output[j + (8 * (number_of_letters - 1))];
+
+		}
+		temp[8] = '\0';
+		output_letters[number_of_letters - 1] = strtol(temp, 0, 2);
 	}
 	output_letters[number_of_letters] = '\0';
 	printf("the output in letters %s\n", output_letters);
@@ -206,6 +231,174 @@ char* hamming(int input_len, char* encoded_file, int *send_len) {
 	printf("%s = %c = %d = 0x%.2X\n", data, c, c, c);*/
 }
 
-void reverse_hamming(char* in, char* out) {
+char* reverse_hamming(char* in, int len) {
+	printf("the len of the input is %d\n", len);
+	int efective_len = len - len % 15;
+	printf("the efective len of the input is %d\n", efective_len);
+	int frames_num = efective_len / 15;
+	int checks_sum[4];
+	int check_index = 0;
+	int errors=0;
+	//char* input_fixed= (char*)calloc((frames_num * 15) + 1, sizeof(char));
+	char* output = (char*)calloc((frames_num * 11) + 1, sizeof(char));
+	char data[16] = {'0'};
+	int c_1=0, c_2=0, c_4=0, c_8=0;
+	for (int i = 0; i < frames_num; i++) {
+		c_1 = 0, c_2 = 0, c_4 = 0, c_8 = 0;
+		if (in[(1 - 1) + i * 15] == 1) {
+			data[1 - 1] = '1';
+			c_1++;
+		}
+		else data[1 - 1] = '0';
 
+		if (in[(2 - 1) + i * 15] == 1) {
+			data[2 - 1] = '1';
+			c_2++;
+		}
+		else data[2 - 1] = '0';
+
+		if (in[(3 - 1) + i * 15] == 1) {
+			data[3 - 1] = '1';
+			c_1++;
+		}
+		else data[3 - 1] = '0';
+
+		if (in[(4 - 1) + i * 15] == 1) {
+			data[4 - 1] = '1';
+			c_4++;
+		}
+		else data[4 - 1] = '0';
+
+		if (in[(5 - 1) + i * 15] == 1) {
+			data[5 - 1] = '1';
+			c_1++;
+			c_4++;
+		}
+		else data[5 - 1] = '0';
+
+		if (in[(6 - 1) + i * 15] == 1) {
+			data[6 - 1] = '1';
+			c_2++;
+			c_4++;
+		}
+		else data[6 - 1] = '0';
+
+		if (in[(7 - 1) + i * 15] == 1) {
+			data[7 - 1] = '1';
+			c_1++;
+			c_2++;
+			c_4++;
+		}
+		else data[7 - 1] = '0';
+
+		if (in[(8 - 1) + i * 15] == 1) {
+			data[8 - 1] = '1';
+			c_8++;
+			
+		}
+		else data[8 - 1] = '0';
+
+		if (in[(9 - 1) + i * 15] == 1) {
+			data[9 - 1] = '1';
+			c_1++;
+			c_8++;
+			
+		}
+		else data[9 - 1] = '0';
+
+		if (in[(10 - 1) + i * 15] == 1) {
+			data[10 - 1] = '1';
+			
+			c_2++;
+			c_8++;
+		}
+		else data[10 - 1] = '0';
+
+		if (in[(11 - 1) + i * 15] == 1) {
+			data[11 - 1] = '1';
+			c_1++;
+			c_2++;
+			c_8++;
+		}
+		else data[11 - 1] = '0';
+
+		if (in[(12 - 1) + i * 15] == 1) {
+			data[12 - 1] = '1';
+			c_4++;
+			c_8++;
+		}
+		else data[12 - 1] = '0';
+
+		if (in[(13 - 1) + i * 15] == 1) {
+			data[13 - 1] = '1';
+			c_1++;
+			c_4++;
+			c_8++;
+		}
+		else data[13 - 1] = '0';
+
+		if (in[(14 - 1) + i * 15] == 1) {
+			data[14 - 1] = '1';
+			c_2++;
+			c_4++;
+			c_8++;
+		}
+		else data[14 - 1] = '0';
+
+		if (in[(15 - 1) + i * 15] == 1) {
+			data[15 - 1] = '1';
+			c_1++;
+			c_2++;
+			c_4++;
+			c_8++;
+		}
+		else data[15 - 1] = '0';
+		data[15] = '\0';
+		//printf("data is %s\n", data);
+		checks_sum[0] = (c_8 % 2 == 1) ? 1 : 0;
+		checks_sum[1] = (c_4 % 2 == 1) ? 1 : 0;
+		checks_sum[2] = (c_2 % 2 == 1) ? 1 : 0;
+		checks_sum[3] = (c_1 % 2 == 1) ? 1 : 0;
+		check_index = checks_sum[3] * (2 ^ 0) + checks_sum[2] * (2 ^ 1) + checks_sum[1] * (2 ^ 2) + checks_sum[0] * (2 ^ 3);
+		if (check_index != 0) {
+			errors++;
+			data[check_index - 1] = (data[check_index - 1] == '1') ? '0' : '1';
+		}
+		output[(1 - 1) + i * 11] = data[3-1];
+		output[(2 - 1) + i * 11] = data[5-1];
+		output[(3 - 1) + i * 11] = data[6-1];
+		output[(4 - 1) + i * 11] = data[7-1];
+		output[(5 - 1) + i * 11] = data[9-1];
+		output[(6 - 1) + i * 11] = data[10 - 1];
+		output[(7 - 1) + i * 11] = data[11 - 1];
+		output[(8 - 1) + i * 11] = data[12 - 1];
+		output[(9 - 1) + i * 11] = data[13 - 1];
+		output[(10 - 1) + i * 11] = data[14 - 1];
+		output[(11 - 1) + i * 11] = data[15 - 1];
+		//printf("checks_sum is %s\n", checks_sum);
+		
+	}
+
+	output[frames_num * 11] = '\0';
+	printf("output after hamming reverse is %s\n", output);
+
+	int number_of_letters = (frames_num*11)/8;
+	char* output_letters = (char*)calloc(number_of_letters + 1, sizeof(char));
+	char temp[9];
+	//char c;
+	for (int j = 0; j < number_of_letters ; j++) { ///number_of_letters
+		temp[0] = output[(1 - 1) + (8 * j)];
+		temp[1] = output[(2 - 1) + (8 * j)];
+		temp[2] = output[(3 - 1) + (8 * j)];
+		temp[3] = output[(4 - 1) + (8 * j)];
+		temp[4] = output[(5 - 1) + (8 * j)];
+		temp[5] = output[(6 - 1) + (8 * j)];
+		temp[6] = output[(7 - 1) + (8 * j)];
+		temp[7] = output[(8 - 1) + (8 * j)];
+		temp[8] = '\0';
+		output_letters[j] = strtol(temp, 0, 2);
+	}
+	output_letters[number_of_letters] = '\0';
+	printf("output_letters after hamming reverse is %s\n", output_letters);
+	return output_letters;
 }
