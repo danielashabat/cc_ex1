@@ -10,7 +10,7 @@
 
 
 void convert_byte_to_bits(char byte, char bits_array[]) {
-	printf("given byte: 0X%hhx\n", byte);
+	//printf("given byte: 0X%hhx\n", byte);
 	unsigned char mask = 1; // Bit mask
 
 	// Extract the bits
@@ -19,11 +19,11 @@ void convert_byte_to_bits(char byte, char bits_array[]) {
 		bits_array[8 - i - 1] = (byte & (mask << i)) != 0;
 	}
 	// For debug purposes, lets print the received data
-	printf("convert: ");
+	//printf("convert: ");
 	for (int i = 0; i < 8; i++) {
 		printf("%d", bits_array[i]);
 	}
-	printf("\n");
+	//printf("\n");
 	return;
 }
 
@@ -46,7 +46,7 @@ void encoder(FILE* fileptr, long filelen, char* encoded_file) {
 
 }
 
-void encoder_srting(char* string_in, char* string_out, int* len) {
+void encoder_srting(char* string_in, char* string_out, int* len) { // reciving a string of chars, returning a string of 0/1 
 	unsigned char bits[8] = { 0 };
 	
 	for (int i = 0; i < strlen(string_in); i++) {
@@ -63,7 +63,7 @@ void encoder_srting(char* string_in, char* string_out, int* len) {
 
 
 
-char* hamming(int input_len, char* encoded_file, int *send_len) {
+char* hamming(int input_len, char* encoded_file, int *send_len) { ///reciving string of chars 0/1 and its len. return string of alphabet after hamming, and its length.
 	
 	int frames_num = input_len / 11;
 	int module_frames= input_len % 11;
@@ -71,12 +71,13 @@ char* hamming(int input_len, char* encoded_file, int *send_len) {
 	
 	int c_1, c_2, c_4, c_8;
 	char d3, d5, d6, d7, d9, d10, d11, d12,d13,d14 ,d15;
-	printf(">>>>%d frames, %d left\n", frames_num, module_frames);
+	//printf(">>>>%d frames, %d left\n", frames_num, module_frames);
 	for (int i = 0; i < frames_num; i++) { // frames_num
 		c_1=0, c_2=0, c_4=0, c_8=0;
 		if (encoded_file[(1 - 1) + (11 * i)] == 1) {
 			d3 = '1';
 			c_1++;
+			c_2++; //new
 		}
 		else d3 = '0';
 
@@ -220,25 +221,21 @@ char* hamming(int input_len, char* encoded_file, int *send_len) {
 		output_letters[number_of_letters - 1] = strtol(temp, 0, 2);
 	}
 	output_letters[number_of_letters] = '\0';
-	printf("the output in letters %s\n", output_letters);
+	free(output);
+	//printf("the output in letters %s\n", output_letters);
 	return output_letters;
-	//output[frames_num * 15] = '\0';
-	//convert_int_to_string(output_int, frames_num * 15, output);
-	//printf(">>>>%s output\n", output);
-	//char* data = "01010110";
-	/*char* data = "11001";
-	char c = strtol(data, 0, 2);
-	printf("%s = %c = %d = 0x%.2X\n", data, c, c, c);*/
+	
 }
 
-char* reverse_hamming(char* in, int len) {
-	printf("the len of the input is %d\n", len);
+char* reverse_hamming(char* in, int len, int *errors) { ///reciving string of chars==0/1 (not '0' or '1') and its len. returning string of alphabet after reverse hamming.
+	//printf("the len of the input is %d\n", len);
 	int efective_len = len - len % 15;
-	printf("the efective len of the input is %d\n", efective_len);
+	//printf("the efective len of the input is %d\n", efective_len);
 	int frames_num = efective_len / 15;
 	int checks_sum[4];
 	int check_index = 0;
-	int errors=0;
+	*errors = 0;
+	//int errors=0;
 	//char* input_fixed= (char*)calloc((frames_num * 15) + 1, sizeof(char));
 	char* output = (char*)calloc((frames_num * 11) + 1, sizeof(char));
 	char data[16] = {'0'};
@@ -260,6 +257,7 @@ char* reverse_hamming(char* in, int len) {
 		if (in[(3 - 1) + i * 15] == 1) {
 			data[3 - 1] = '1';
 			c_1++;
+			c_2++; // new 
 		}
 		else data[3 - 1] = '0';
 
@@ -354,15 +352,19 @@ char* reverse_hamming(char* in, int len) {
 		}
 		else data[15 - 1] = '0';
 		data[15] = '\0';
-		//printf("data is %s\n", data);
+		printf("data is %s\n", data);
 		checks_sum[0] = (c_8 % 2 == 1) ? 1 : 0;
 		checks_sum[1] = (c_4 % 2 == 1) ? 1 : 0;
 		checks_sum[2] = (c_2 % 2 == 1) ? 1 : 0;
 		checks_sum[3] = (c_1 % 2 == 1) ? 1 : 0;
-		check_index = checks_sum[3] * (2 ^ 0) + checks_sum[2] * (2 ^ 1) + checks_sum[1] * (2 ^ 2) + checks_sum[0] * (2 ^ 3);
+		check_index = checks_sum[3]  + (checks_sum[2] * 2 ) + (checks_sum[1] * 4) + (checks_sum[0] * 8);
+		printf("c_8 = %d, c_4 = %d , c_2 = %d, c_1 = %d\n", c_8, c_4, c_2, c_1);
+		printf("check_index is %d \n", check_index);
+		
 		if (check_index != 0) {
-			errors++;
+			*errors = *errors+1;
 			data[check_index - 1] = (data[check_index - 1] == '1') ? '0' : '1';
+			printf("data with fix %s\n", data);
 		}
 		output[(1 - 1) + i * 11] = data[3-1];
 		output[(2 - 1) + i * 11] = data[5-1];
@@ -380,7 +382,7 @@ char* reverse_hamming(char* in, int len) {
 	}
 
 	output[frames_num * 11] = '\0';
-	printf("output after hamming reverse is %s\n", output);
+	//printf("output after hamming reverse is %s\n", output);
 
 	int number_of_letters = (frames_num*11)/8;
 	char* output_letters = (char*)calloc(number_of_letters + 1, sizeof(char));
@@ -398,7 +400,22 @@ char* reverse_hamming(char* in, int len) {
 		temp[8] = '\0';
 		output_letters[j] = strtol(temp, 0, 2);
 	}
+	free(output);
 	output_letters[number_of_letters] = '\0';
-	printf("output_letters after hamming reverse is %s\n", output_letters);
+	//printf("output_letters after hamming reverse is %s\n", output_letters);
 	return output_letters;
+}
+
+
+int create_noise(char* in, char* out, int len, time_t* seed, double p) {
+	int change_bits = 0;
+	srand((unsigned)time(seed));
+	for (int i = 0; i < len; i++) {
+		if ((rand() / ((double)RAND_MAX)) < p) {
+			out[i] = (in[i] == 1) ? 0 : 1;
+			change_bits++;
+		}
+		else out[i] = in[i];
+	}
+	return change_bits;
 }

@@ -70,7 +70,7 @@ int main(int argc, char* argv[]) {
 	char* hamming_send=NULL;
 	int send_len;
 	int len_in;
-
+	int error_count;
 	fseek(fileptr, 0, SEEK_END);          // Jump to the end of the file
 	filelen = ftell(fileptr);             // Get the current byte offset in the file
 	rewind(fileptr);                      // Jump back to the beginning of the file
@@ -79,13 +79,23 @@ int main(int argc, char* argv[]) {
 	encoder(fileptr, filelen, encoded_file);//encode file from bytes to bits 
 	hamming_send = hamming(filelen*8, encoded_file , &send_len);
 	char* string_out = NULL;
+	
 	string_out=(char*)malloc(send_len * 8 * sizeof(char));
 	printf("hamming_send is %s\n", hamming_send);
-	printf("number of words %d\n", send_len);
+	//printf("number of words %d\n", send_len);
 	encoder_srting(hamming_send, string_out, &len_in);
+	printf("after encoder %s\n", string_out);
 	char* hamming_reverse = NULL;
+	//string_out[2] = 1;
 	
-	hamming_reverse = reverse_hamming(string_out, len_in); // string_out
+	//printf(">>>>>>string_out[2] = %d== %c\n ", string_out[2], string_out[2]);
+	char* string_with_noise = (char*)malloc((len_in+1) * sizeof(char));
+	time_t t;
+	int change_bits= create_noise(string_out, string_with_noise, len_in, &t, 0);
+	printf("change bits %d\n", change_bits);
+	hamming_reverse = reverse_hamming(string_with_noise, len_in, &error_count); // string_out
+	
+	printf("after hamming reverse %s\n", hamming_reverse);
 	fclose(fileptr); // Close the file
 
 	//insert hamming code 
@@ -98,8 +108,8 @@ int main(int argc, char* argv[]) {
 
 	char SendBuf[100] ="hello";//for debuging
 
-	printf("-CLIENT- sending to server : %s\n", SendBuf);
-	count = sendto(client_socket,SendBuf, sizeof(SendBuf), 0, (SOCKADDR*)&RecvAddr, sizeof(RecvAddr));
+	printf("-CLIENT- sending to server : %s\n", hamming_send);
+	count = sendto(client_socket, hamming_send, sizeof(hamming_send), 0, (SOCKADDR*)&RecvAddr, sizeof(RecvAddr));
 	if (count == SOCKET_ERROR) {
 		wprintf(L"sendto failed with error: %d\n", WSAGetLastError());
 		closesocket(client_socket);
