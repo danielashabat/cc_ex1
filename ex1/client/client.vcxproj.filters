@@ -24,8 +24,8 @@
     <ClCompile Include="client_main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="encoder.c">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\share\encoder.c">
+      <Filter>Shared Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

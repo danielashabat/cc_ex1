@@ -78,27 +78,34 @@ int main(int argc, char* argv[]) {
 	encoded_file = (char*)malloc(filelen*8*sizeof(char));//allocate memory for the encoded file 
 	encoder(fileptr, filelen, encoded_file);//encode file from bytes to bits 
 	hamming_send = hamming(filelen*8, encoded_file , &send_len);
-	char* string_out = NULL;
+	char* msg_to_send_in_bits = NULL;
 	
-	string_out=(char*)malloc(send_len * 8 * sizeof(char));
+	msg_to_send_in_bits=(char*)malloc(send_len * 8 * sizeof(char));
 	printf("hamming_send is %s\n", hamming_send);
 	//printf("number of words %d\n", send_len);
-	encoder_srting(hamming_send, string_out, &len_in);
-	printf("after encoder %s\n", string_out);
+	
+	
+
+	fclose(fileptr); // Close the file
+
+	/*decoder (in server)*/
+	printf("-CLIENT-");
+	encoder_srting(hamming_send, msg_to_send_in_bits, &len_in);//debug
+	
 	char* hamming_reverse = NULL;
 	//string_out[2] = 1;
 	
-	//printf(">>>>>>string_out[2] = %d== %c\n ", string_out[2], string_out[2]);
-	char* string_with_noise = (char*)malloc((len_in+1) * sizeof(char));
-	time_t t;
-	int change_bits= create_noise(string_out, string_with_noise, len_in, &t, 0);
-	printf("change bits %d\n", change_bits);
-	hamming_reverse = reverse_hamming(string_with_noise, len_in, &error_count); // string_out
-	
-	printf("after hamming reverse %s\n", hamming_reverse);
-	fclose(fileptr); // Close the file
+	////printf(">>>>>>string_out[2] = %d== %c\n ", string_out[2], string_out[2]);
+	//char* string_with_noise = (char*)malloc((len_in+1) * sizeof(char));
+	//time_t t;
+	//int change_bits= create_noise(string_out, string_with_noise, len_in, &t, 0);
+	//printf("change bits %d\n", change_bits);
+	//hamming_reverse = reverse_hamming(string_with_noise, len_in, &error_count); // string_out
+	//
+	//printf("after hamming reverse %s\n", hamming_reverse);
+	//
 
-	//insert hamming code 
+	
 
 
 
@@ -106,9 +113,10 @@ int main(int argc, char* argv[]) {
 //---------------------------------------------
 	//sending messages
 
-	char SendBuf[100] ="hello";//for debuging
+	//char SendBuf[MAX_BUFFER_SIZE] ;//for debuging
+	//strcpy(SendBuf, hamming_send);
 
-	printf("-CLIENT- sending to server : %s\n", hamming_send);
+	printf("-CLIENT- sending to server : %d bytes\n", send_len);
 	count = sendto(client_socket, hamming_send, sizeof(hamming_send), 0, (SOCKADDR*)&RecvAddr, sizeof(RecvAddr));
 	if (count == SOCKET_ERROR) {
 		wprintf(L"sendto failed with error: %d\n", WSAGetLastError());
@@ -116,6 +124,14 @@ int main(int argc, char* argv[]) {
 		WSACleanup();
 		return FAIL;
 	}
+	printf("-CLIENT- success sending to server, number of bytes sent: %d\n", count);
+
+
+	//int n;
+	//int len = sizeof(RecvAddr);
+	//n = recvfrom(client_socket, (char*)SendBuf, sizeof(SendBuf),MSG_WAITALL, (struct sockaddr*)&RecvAddr,&len);
+	//SendBuf[n] = '\0';
+	//printf("Server : %s\n", SendBuf);
 
 
 	
@@ -129,7 +145,7 @@ int main(int argc, char* argv[]) {
     }
     //---------------------------------------------
     // Clean up and quit.
-	free(encoded_file);
+	//free(encoded_file);
 
     wprintf(L"Exiting.\n");
     WSACleanup();

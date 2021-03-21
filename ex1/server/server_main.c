@@ -9,6 +9,7 @@ Description –
 
 
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
+#define _CRT_SECURE_NO_WARNINGS
 
 #include <stdio.h>
 #include <stdlib.h> 
@@ -24,8 +25,8 @@ int main(int argc, char* argv[]) {
     char IP[] =SERVER_ADDRESS_STR;
     int count = 0;
    
-    SOCKET RecvSocket = INVALID_SOCKET;
-    SOCKADDR_IN ServerAddr;
+    SOCKET ServerSocket = INVALID_SOCKET;
+    SOCKADDR_IN ServerAddr, ClientAddr;
     int bindRes;
     int iResult;
 
@@ -43,9 +44,9 @@ int main(int argc, char* argv[]) {
         return;
     }
 
-    RecvSocket = socket(AF_INET, SOCK_DGRAM, 0);//UDP
+    ServerSocket = socket(AF_INET, SOCK_DGRAM, 0);//UDP
 
-    if (RecvSocket == INVALID_SOCKET)
+    if (ServerSocket == INVALID_SOCKET)
     {
         printf("Error at socket( ): %ld\n", WSAGetLastError());
         return 1;
@@ -59,7 +60,7 @@ int main(int argc, char* argv[]) {
     ServerAddr.sin_port = htons(port);
     /*bind*/
 
-    bindRes = bind(RecvSocket, (SOCKADDR*)&ServerAddr, sizeof(ServerAddr));
+    bindRes = bind(ServerSocket, (SOCKADDR*)&ServerAddr, sizeof(ServerAddr));
     if (bindRes == SOCKET_ERROR)
     {
         printf("bind( ) failed with error %ld. Ending program\n", WSAGetLastError());
@@ -67,32 +68,58 @@ int main(int argc, char* argv[]) {
     }
 
     char RecvBuf[MAX_BUFFER_SIZE];
-    int ServerAddrSize = sizeof(ServerAddr);
-
+    int AddrSize = sizeof(ClientAddr);
 
    
-    count = recvfrom(RecvSocket,
-        RecvBuf, MAX_BUFFER_SIZE, 0, (SOCKADDR*)&ServerAddr, &ServerAddrSize);
+    count = recvfrom(ServerSocket, RecvBuf, sizeof(RecvBuf), 0, (SOCKADDR*)&ClientAddr, &AddrSize);
+    printf("-SERVER- recieved from client : %d bytes\n", count);
+    if (count < MAX_BUFFER_SIZE) {
+        RecvBuf[count] = '\0';
+    }
     if (count == SOCKET_ERROR) {
-        wprintf(L"recvfrom failed with error %d\n", WSAGetLastError());
+        printf(L"recvfrom failed with error %d\n", WSAGetLastError());
         return FAIL;
     }
-    printf("-SERVER- recieved from client : %s\n", RecvBuf);
+    
+
+
+    ////after recieving all messages send summary to client 
+    //char SendBuf[MAX_BUFFER_SIZE] = "Server ends";//for debuging
+    //sendto(ServerSocket, SendBuf, MAX_BUFFER_SIZE, 0, (const struct sockaddr*)&ClientAddr, AddrSize);
+    //printf("-SERVER- message sent to client .\n");
+
+
     // Close the socket when finished receiving datagrams
-    wprintf(L"Finished receiving. Closing socket.\n");
-    iResult = closesocket(RecvSocket);
+    printf("Finished receiving. Closing socket.\n");
+    iResult = closesocket(ServerSocket);
     if (iResult == SOCKET_ERROR) {
         wprintf(L"closesocket failed with error %d\n", WSAGetLastError());
         return FAIL;
     }
     //-----------------------------------------------
 
+     // hamming decoder
+    int send_len = strlen(RecvBuf);
+    int len_in;
+    int error_count;
+    char* hamming_reverse = NULL;
+    char* string_out = NULL;
+
+    printf("-SERVER- send len is: %d\n", send_len);
+   
+    string_out = (char*)malloc(send_len * 8 * sizeof(char));
+    encoder_srting(RecvBuf, string_out, &len_in);//printd= the message in bits presentation 
+
+   
+    hamming_reverse = reverse_hamming(string_out, len_in, &error_count); // string_out
+    printf("after hamming reverse: %s\n", hamming_reverse);
+    //-----------------------------------------------
     //file handling 
   
-    //FILE* newfileptr;
-    //newfileptr = fopen("newfile.jpg", "wb");  // Open the file in binary mode
-    //fwrite(temp, 1, filelen, newfileptr);
-    //fclose(newfileptr);
+    FILE* newfileptr;
+    newfileptr = fopen("newfile.txt", "wb");  // Open the file in binary mode
+    fwrite(hamming_reverse, 1, sizeof(hamming_reverse), newfileptr);
+    fclose(newfileptr);
 
 
 

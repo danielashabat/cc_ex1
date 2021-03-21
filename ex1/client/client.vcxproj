@@ -142,8 +142,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\share\encoder.c" />
     <ClCompile Include="client_main.c" />
-    <ClCompile Include="encoder.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\share\common.h" />

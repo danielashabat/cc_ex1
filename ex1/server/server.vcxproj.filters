@@ -27,9 +27,15 @@
     <ClCompile Include="..\share\decoder.c">
       <Filter>Shared Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\share\encoder.c">
+      <Filter>Shared Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\share\common.h">
+      <Filter>Shared Headers Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\share\encoder.h">
       <Filter>Shared Headers Files</Filter>
     </ClInclude>
   </ItemGroup>

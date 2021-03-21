@@ -20,13 +20,15 @@ void convert_byte_to_bits(char byte, char bits_array[]) {
 	}
 	// For debug purposes, lets print the received data
 	//printf("convert: ");
-	for (int i = 0; i < 8; i++) {
-		printf("%d", bits_array[i]);
-	}
+	//for (int i = 0; i < 8; i++) {
+	//	printf("%d", bits_array[i]);
+	//}
 	//printf("\n");
 	return;
 }
 
+
+//read file in bytes and convert the file to string of 0/1
 void encoder(FILE* fileptr, long filelen, char* encoded_file) {
 
 	char buffer;
@@ -38,7 +40,7 @@ void encoder(FILE* fileptr, long filelen, char* encoded_file) {
 		memcpy(encoded_file + i * 8, bits, 8);
 	}
 
-	printf("encoded file: ");
+	//printf("encoded file: \n");
 	for (int i = 0; i < filelen * 8; i++) {
 		printf("%d", encoded_file[i]);
 	}
@@ -54,7 +56,7 @@ void encoder_srting(char* string_in, char* string_out, int* len) { // reciving a
 		memcpy(string_out + i * 8, bits, 8);
 	}
 	*len = strlen(string_in) * 8;
-	printf(">>>>>>encoded string: ");
+	printf("encoded string: ");
 	for (int i = 0; i < strlen(string_in) * 8; i++) {
 		printf("%d", string_out[i]);
 	}

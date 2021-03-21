@@ -143,10 +143,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\share\decoder.c" />
+    <ClCompile Include="..\share\encoder.c" />
     <ClCompile Include="server_main.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\share\common.h" />
+    <ClInclude Include="..\share\encoder.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
