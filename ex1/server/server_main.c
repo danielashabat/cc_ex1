@@ -21,12 +21,12 @@ Description –
 
 
 int main(int argc, char* argv[]) {
-    int port = 8888;
+    int MyPort = SERVER_PORT;
     char IP[] =SERVER_ADDRESS_STR;
     int count = 0;
    
     SOCKET ServerSocket = INVALID_SOCKET;
-    SOCKADDR_IN ServerAddr, ClientAddr;
+    SOCKADDR_IN ServerAddr, ClientAddr = {0};
     int bindRes;
     int iResult;
 
@@ -56,8 +56,8 @@ int main(int argc, char* argv[]) {
     
 
     ServerAddr.sin_family = AF_INET;
-    ServerAddr.sin_addr.s_addr = inet_addr(SERVER_ADDRESS_STR);
-    ServerAddr.sin_port = htons(port);
+    ServerAddr.sin_addr.s_addr = INADDR_ANY;
+    ServerAddr.sin_port = htons(MyPort);
     /*bind*/
 
     bindRes = bind(ServerSocket, (SOCKADDR*)&ServerAddr, sizeof(ServerAddr));
@@ -70,60 +70,65 @@ int main(int argc, char* argv[]) {
     char RecvBuf[MAX_BUFFER_SIZE];
     int AddrSize = sizeof(ClientAddr);
 
-   
+    //--------------RECIEVE---------------------------------
     count = recvfrom(ServerSocket, RecvBuf, sizeof(RecvBuf), 0, (SOCKADDR*)&ClientAddr, &AddrSize);
     printf("-SERVER- recieved from client : %d bytes\n", count);
     if (count < MAX_BUFFER_SIZE) {
         RecvBuf[count] = '\0';
     }
     if (count == SOCKET_ERROR) {
-        printf(L"recvfrom failed with error %d\n", WSAGetLastError());
+        printf("recvfrom failed with error %d\n", WSAGetLastError());
         return FAIL;
     }
     
+    //----------------------SEND FEEDBACK-------------------------
+    //after recieving all messages send summary to client 
+    char SendBuf[MAX_BUFFER_SIZE] = {0};//for debuging
+    int send_len = 0;
+    strcpy(SendBuf, "hello");
+    send_len = sizeof("hello");
+    printf("-SERVER- sending msg to client : %d bytes\n", count);
+    count= sendto(ServerSocket, SendBuf, send_len, 0, (SOCKADDR*)&ClientAddr, AddrSize);
+    printf("-SERVER- sent to client : %d bytes\n", count);
 
 
-    ////after recieving all messages send summary to client 
-    //char SendBuf[MAX_BUFFER_SIZE] = "Server ends";//for debuging
-    //sendto(ServerSocket, SendBuf, MAX_BUFFER_SIZE, 0, (const struct sockaddr*)&ClientAddr, AddrSize);
-    //printf("-SERVER- message sent to client .\n");
+
+    //-----------------------------------------------
+
+    // // hamming decoder
+    //int send_len = strlen(RecvBuf);
+    //int len_in;
+    //int error_count;
+    //char* hamming_reverse = NULL;
+    //char* string_out = NULL;
+
+    //printf("-SERVER- send len is: %d\n", send_len);
+   
+    //string_out = (char*)malloc(send_len * 8 * sizeof(char));
+    //encoder_srting(RecvBuf, string_out, &len_in);//printd= the message in bits presentation 
+
+   
+    //hamming_reverse = reverse_hamming(string_out, len_in, &error_count); // string_out
+    //printf("after hamming reverse: %s\n", hamming_reverse);
+    //-----------------------------------------------
+    //file handling 
+  
+    //FILE* newfileptr;
+    //newfileptr = fopen("newfile.txt", "wb");  // Open the file in binary mode
+    //fwrite(hamming_reverse, 1, sizeof(hamming_reverse), newfileptr);
+    //fclose(newfileptr);
 
 
-    // Close the socket when finished receiving datagrams
+
+    //------------------CLOSE&CLEANUP-----------------------------
+
+        // Close the socket when finished receiving datagrams
     printf("Finished receiving. Closing socket.\n");
     iResult = closesocket(ServerSocket);
     if (iResult == SOCKET_ERROR) {
         wprintf(L"closesocket failed with error %d\n", WSAGetLastError());
         return FAIL;
     }
-    //-----------------------------------------------
-
-     // hamming decoder
-    int send_len = strlen(RecvBuf);
-    int len_in;
-    int error_count;
-    char* hamming_reverse = NULL;
-    char* string_out = NULL;
-
-    printf("-SERVER- send len is: %d\n", send_len);
-   
-    string_out = (char*)malloc(send_len * 8 * sizeof(char));
-    encoder_srting(RecvBuf, string_out, &len_in);//printd= the message in bits presentation 
-
-   
-    hamming_reverse = reverse_hamming(string_out, len_in, &error_count); // string_out
-    printf("after hamming reverse: %s\n", hamming_reverse);
-    //-----------------------------------------------
-    //file handling 
-  
-    FILE* newfileptr;
-    newfileptr = fopen("newfile.txt", "wb");  // Open the file in binary mode
-    fwrite(hamming_reverse, 1, sizeof(hamming_reverse), newfileptr);
-    fclose(newfileptr);
-
-
-
-    //-----------------------------------------------
     // Clean up and exit.
     printf("bye server\n");
     wprintf(L"Exiting.\n");

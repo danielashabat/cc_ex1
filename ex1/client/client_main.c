@@ -27,7 +27,7 @@ Description –
 int main(int argc, char* argv[]) {
 
 	char IP[] = SERVER_ADDRESS_STR;
-	int port = 8888;
+	int ChannelPort = CHANNEL_PORT;
 	char filename[FILE_LEN] = "myfile.txt";
 	int count;
 	SOCKET client_socket;
@@ -58,41 +58,41 @@ int main(int argc, char* argv[]) {
 
 	//Create a sockaddr_in object clientService and set  values.
 	RecvAddr.sin_family = AF_INET;
-	RecvAddr.sin_addr.s_addr = inet_addr(SERVER_ADDRESS_STR);
-	RecvAddr.sin_port = htons(port); //Setting the port to connect to.
+	RecvAddr.sin_addr.s_addr = inet_addr(CHANNEL_ADDRESS_STR);
+	RecvAddr.sin_port = htons(ChannelPort); //Setting the port to connect to.
 
 //---------------------------------------------
 	//file handling 
-	FILE* fileptr;
-	fileptr = fopen(filename, "rb");  // Open the file in binary mode
-	long filelen;
-	char* encoded_file;//array of chars, each char value can be '0' or '1' (NOT the ASCI presentation)
-	char* hamming_send=NULL;
-	int send_len;
-	int len_in;
-	int error_count;
-	fseek(fileptr, 0, SEEK_END);          // Jump to the end of the file
-	filelen = ftell(fileptr);             // Get the current byte offset in the file
-	rewind(fileptr);                      // Jump back to the beginning of the file
+	//FILE* fileptr;
+	//fileptr = fopen(filename, "rb");  // Open the file in binary mode
+	//long filelen;
+	//char* encoded_file;//array of chars, each char value can be '0' or '1' (NOT the ASCI presentation)
+	//char* hamming_send=NULL;
+	//int send_len;
+	//int len_in;
+	//int error_count;
+	//fseek(fileptr, 0, SEEK_END);          // Jump to the end of the file
+	//filelen = ftell(fileptr);             // Get the current byte offset in the file
+	//rewind(fileptr);                      // Jump back to the beginning of the file
 
-	encoded_file = (char*)malloc(filelen*8*sizeof(char));//allocate memory for the encoded file 
-	encoder(fileptr, filelen, encoded_file);//encode file from bytes to bits 
-	hamming_send = hamming(filelen*8, encoded_file , &send_len);
-	char* msg_to_send_in_bits = NULL;
-	
-	msg_to_send_in_bits=(char*)malloc(send_len * 8 * sizeof(char));
-	printf("hamming_send is %s\n", hamming_send);
-	//printf("number of words %d\n", send_len);
-	
-	
+	//encoded_file = (char*)malloc(filelen*8*sizeof(char));//allocate memory for the encoded file 
+	//encoder(fileptr, filelen, encoded_file);//encode file from bytes to bits 
+	//hamming_send = hamming(filelen*8, encoded_file , &send_len);
+	//char* msg_to_send_in_bits = NULL;
+	//
+	//msg_to_send_in_bits=(char*)malloc(send_len * 8 * sizeof(char));
+	//printf("hamming_send is %s\n", hamming_send);
+	////printf("number of words %d\n", send_len);
+	//
+	//
 
-	fclose(fileptr); // Close the file
+	//fclose(fileptr); // Close the file
 
-	/*decoder (in server)*/
-	printf("-CLIENT-");
-	encoder_srting(hamming_send, msg_to_send_in_bits, &len_in);//debug
-	
-	char* hamming_reverse = NULL;
+	///*decoder (in server)*/
+	//printf("-CLIENT-");
+	//encoder_srting(hamming_send, msg_to_send_in_bits, &len_in);//debug
+	//
+	//char* hamming_reverse = NULL;
 	//string_out[2] = 1;
 	
 	////printf(">>>>>>string_out[2] = %d== %c\n ", string_out[2], string_out[2]);
@@ -113,13 +113,14 @@ int main(int argc, char* argv[]) {
 //---------------------------------------------
 	//sending messages
 
-	//char SendBuf[MAX_BUFFER_SIZE] ;//for debuging
-	//strcpy(SendBuf, hamming_send);
+	char SendBuf[MAX_BUFFER_SIZE] ;//for debuging
+	strcpy(SendBuf, "hello");
+	int send_len = sizeof("hello");
 
 	printf("-CLIENT- sending to server : %d bytes\n", send_len);
-	count = sendto(client_socket, hamming_send, sizeof(hamming_send), 0, (SOCKADDR*)&RecvAddr, sizeof(RecvAddr));
+	count = sendto(client_socket, SendBuf, send_len, 0, (SOCKADDR*)&RecvAddr, sizeof(RecvAddr));
 	if (count == SOCKET_ERROR) {
-		wprintf(L"sendto failed with error: %d\n", WSAGetLastError());
+		printf("sendto failed with error: %d\n", WSAGetLastError());
 		closesocket(client_socket);
 		WSACleanup();
 		return FAIL;
@@ -127,11 +128,19 @@ int main(int argc, char* argv[]) {
 	printf("-CLIENT- success sending to server, number of bytes sent: %d\n", count);
 
 
-	//int n;
-	//int len = sizeof(RecvAddr);
-	//n = recvfrom(client_socket, (char*)SendBuf, sizeof(SendBuf),MSG_WAITALL, (struct sockaddr*)&RecvAddr,&len);
-	//SendBuf[n] = '\0';
-	//printf("Server : %s\n", SendBuf);
+	/*get feedback from channel*/
+	int len = sizeof(RecvAddr);
+	count = recvfrom(client_socket, (char*)SendBuf, sizeof(SendBuf), 0, (struct sockaddr*)&RecvAddr, &len);
+	if (count == SOCKET_ERROR) {
+		printf("recvfrom failed with error %d\n", WSAGetLastError());
+		return FAIL;
+	}
+	if (count < MAX_BUFFER_SIZE) {
+		SendBuf[count] = '\0';
+	}
+	else
+		SendBuf[MAX_BUFFER_SIZE - 1] = '\0';
+	printf("-CLIENT- recieved message from server,number of bytes recieved: %d\n", count);
 
 
 	
