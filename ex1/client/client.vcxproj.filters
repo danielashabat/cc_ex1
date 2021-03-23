@@ -32,8 +32,8 @@
     <ClInclude Include="..\share\common.h">
       <Filter>Shared Headers Files</Filter>
     </ClInclude>
-    <ClInclude Include="encoder.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="..\share\encoder.h">
+      <Filter>Shared Headers Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

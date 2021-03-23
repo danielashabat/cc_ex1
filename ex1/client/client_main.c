@@ -22,6 +22,9 @@ Description –
 #define FILE_LEN 100//verify it
 
 
+//function decleration
+long  FileLen(FILE* fileptr);
+
 
 
 int main(int argc, char* argv[]) {
@@ -63,62 +66,51 @@ int main(int argc, char* argv[]) {
 
 //---------------------------------------------
 	//file handling 
-	//FILE* fileptr;
-	//fileptr = fopen(filename, "rb");  // Open the file in binary mode
-	//long filelen;
-	//char* encoded_file;//array of chars, each char value can be '0' or '1' (NOT the ASCI presentation)
-	//char* hamming_send=NULL;
-	//int send_len;
-	//int len_in;
-	//int error_count;
-	//fseek(fileptr, 0, SEEK_END);          // Jump to the end of the file
-	//filelen = ftell(fileptr);             // Get the current byte offset in the file
-	//rewind(fileptr);                      // Jump back to the beginning of the file
+	FILE* fileptr;
+	long filelen;
+	char* encoded_file;//array of chars, each char value can be '0' or '1' (NOT the ASCI presentation)
+	char* hamming_send=NULL;
+	int send_len;
+	int len_in;
 
-	//encoded_file = (char*)malloc(filelen*8*sizeof(char));//allocate memory for the encoded file 
-	//encoder(fileptr, filelen, encoded_file);//encode file from bytes to bits 
-	//hamming_send = hamming(filelen*8, encoded_file , &send_len);
-	//char* msg_to_send_in_bits = NULL;
-	//
-	//msg_to_send_in_bits=(char*)malloc(send_len * 8 * sizeof(char));
-	//printf("hamming_send is %s\n", hamming_send);
-	////printf("number of words %d\n", send_len);
-	//
-	//
+	fileptr = fopen(filename, "rb");  // Open the file in binary mode
+	filelen = FileLen(fileptr); 
 
-	//fclose(fileptr); // Close the file
+	encoded_file = (char*)malloc(filelen*8*sizeof(char));//allocate memory for the encoded file 
+	generate_bits_string_from_file(fileptr, filelen, encoded_file);//encode file from bytes to bits 
+	hamming_send = hamming(filelen*8, encoded_file , &send_len);
+	char* msg_to_send_in_bits = NULL;
+	
+	msg_to_send_in_bits=(char*)malloc(send_len * 8 * sizeof(char));
+	printf("hamming_send is %s\n", hamming_send);
+	//printf("number of words %d\n", send_len);
+	
+	
+
+	fclose(fileptr); // Close the file
 
 	///*decoder (in server)*/
 	//printf("-CLIENT-");
-	//encoder_srting(hamming_send, msg_to_send_in_bits, &len_in);//debug
-	//
-	//char* hamming_reverse = NULL;
-	//string_out[2] = 1;
-	
-	////printf(">>>>>>string_out[2] = %d== %c\n ", string_out[2], string_out[2]);
-	//char* string_with_noise = (char*)malloc((len_in+1) * sizeof(char));
-	//time_t t;
-	//int change_bits= create_noise(string_out, string_with_noise, len_in, &t, 0);
-	//printf("change bits %d\n", change_bits);
-	//hamming_reverse = reverse_hamming(string_with_noise, len_in, &error_count); // string_out
-	//
-	//printf("after hamming reverse %s\n", hamming_reverse);
-	//
+	encoder_srting(hamming_send, msg_to_send_in_bits, &len_in);//debug
+
 
 	
 
 
 
 
-//---------------------------------------------
+//------------SEND TO CHANNEL---------------------------------
 	//sending messages
 
 	char SendBuf[MAX_BUFFER_SIZE] ;//for debuging
-	strcpy(SendBuf, "hello");
-	int send_len = sizeof("hello");
+	if (send_len != strlen(hamming_send)) {
+		printf("ERRROR: sendlen is different than hamming send len! send len: %d, hamming_send len: %d\n", send_len, strlen(hamming_send));
+		return FAIL;
+	}
+
 
 	printf("-CLIENT- sending to server : %d bytes\n", send_len);
-	count = sendto(client_socket, SendBuf, send_len, 0, (SOCKADDR*)&RecvAddr, sizeof(RecvAddr));
+	count = sendto(client_socket, hamming_send, send_len, 0, (SOCKADDR*)&RecvAddr, sizeof(RecvAddr));
 	if (count == SOCKET_ERROR) {
 		printf("sendto failed with error: %d\n", WSAGetLastError());
 		closesocket(client_socket);
@@ -163,3 +155,10 @@ int main(int argc, char* argv[]) {
 }
 
 
+long  FileLen(FILE* fileptr) {
+	long filelen;
+	fseek(fileptr, 0, SEEK_END);          // Jump to the end of the file
+	filelen = ftell(fileptr);             // Get the current byte offset in the file
+	rewind(fileptr);                      // Jump back to the beginning of the file
+	return filelen;
+}

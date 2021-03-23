@@ -29,7 +29,7 @@ void convert_byte_to_bits(char byte, char bits_array[]) {
 
 
 //read file in bytes and convert the file to string of 0/1
-void encoder(FILE* fileptr, long filelen, char* encoded_file) {
+void generate_bits_string_from_file(FILE* fileptr, long filelen, char* encoded_file) {
 
 	char buffer;
 	unsigned char bits[8] = { 0 };

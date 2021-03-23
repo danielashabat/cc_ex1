@@ -70,17 +70,39 @@ int main(int argc, char* argv[]) {
     char RecvBuf[MAX_BUFFER_SIZE];
     int AddrSize = sizeof(ClientAddr);
 
-    //--------------RECIEVE---------------------------------
+    //--------------RECIEVE FROM CHANNEL---------------------------------
     count = recvfrom(ServerSocket, RecvBuf, sizeof(RecvBuf), 0, (SOCKADDR*)&ClientAddr, &AddrSize);
     printf("-SERVER- recieved from client : %d bytes\n", count);
-    if (count < MAX_BUFFER_SIZE) {
-        RecvBuf[count] = '\0';
-    }
     if (count == SOCKET_ERROR) {
         printf("recvfrom failed with error %d\n", WSAGetLastError());
         return FAIL;
     }
+    if (count < MAX_BUFFER_SIZE) {
+        RecvBuf[count] = '\0';
+    }
+    else { 
+        printf("-SERVER ERROR- buffer is too small!\n");
+        return FAIL;
+    }
     
+    // hamming decoder
+    int len_in;
+    int error_count;
+    char* hamming_reverse = NULL;
+    char* string_out = NULL;
+
+    printf("-SERVER- the recieved message len is: %d\n", count);
+
+    string_out = (char*)malloc(count * 8 * sizeof(char));
+    encoder_srting(RecvBuf, string_out, &len_in);//printd= the message in bits presentation 
+
+
+    hamming_reverse = reverse_hamming(string_out, len_in, &error_count); // string_out
+    printf("-SERVER-after hamming reverse: %s, size of hamming reverse: %d \n", hamming_reverse, strlen(hamming_reverse));
+    
+
+
+
     //----------------------SEND FEEDBACK-------------------------
     //after recieving all messages send summary to client 
     char SendBuf[MAX_BUFFER_SIZE] = {0};//for debuging
@@ -95,28 +117,14 @@ int main(int argc, char* argv[]) {
 
     //-----------------------------------------------
 
-    // // hamming decoder
-    //int send_len = strlen(RecvBuf);
-    //int len_in;
-    //int error_count;
-    //char* hamming_reverse = NULL;
-    //char* string_out = NULL;
 
-    //printf("-SERVER- send len is: %d\n", send_len);
-   
-    //string_out = (char*)malloc(send_len * 8 * sizeof(char));
-    //encoder_srting(RecvBuf, string_out, &len_in);//printd= the message in bits presentation 
-
-   
-    //hamming_reverse = reverse_hamming(string_out, len_in, &error_count); // string_out
-    //printf("after hamming reverse: %s\n", hamming_reverse);
     //-----------------------------------------------
     //file handling 
   
-    //FILE* newfileptr;
-    //newfileptr = fopen("newfile.txt", "wb");  // Open the file in binary mode
-    //fwrite(hamming_reverse, 1, sizeof(hamming_reverse), newfileptr);
-    //fclose(newfileptr);
+    FILE* newfileptr;
+    newfileptr = fopen("newfile.txt", "wb");  // Open the file in binary mode
+    fwrite(hamming_reverse, 1, strlen(hamming_reverse), newfileptr);
+    fclose(newfileptr);
 
 
 

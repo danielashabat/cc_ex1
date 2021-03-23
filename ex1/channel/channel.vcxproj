@@ -141,10 +141,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\share\encoder.c" />
     <ClCompile Include="channel_main.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\share\common.h" />
+    <ClInclude Include="..\share\encoder.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
