@@ -20,18 +20,13 @@ int main(int argc, char* argv[]) {
     int ServerPort = SERVER_PORT;
     char IP[] = SERVER_ADDRESS_STR;
     int count = 0;
-    
-
-
+  
     SOCKET ChannelSocket = INVALID_SOCKET;
     SOCKADDR_IN ChannelAddr, ClientAddr , ServerAddr;
     int bindRes;
     int iResult;
-
-
-
-    // Initialize Winsock.
     WSADATA wsaData;
+
     int StartupRes = WSAStartup(MAKEWORD(2, 2), &wsaData);
     int program_running = 1;
     int i = 0;

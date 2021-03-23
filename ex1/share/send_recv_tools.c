@@ -30,7 +30,7 @@ int SendMsg(SOCKET socket, char* BufferToSend, int BytesToSend, SOCKADDR_IN* Rec
         BytesTransferred = sendto(socket, BufferToSend, BytesToSend, 0, (SOCKADDR*)RecvAddr, AddrSize);
         if (BytesTransferred == SOCKET_ERROR)
         {
-            printf("sendto() failed, error %d\n", WSAGetLastError());
+            printf("-ERROR- sendto() failed, error %d\n", WSAGetLastError());
             return FAIL;
         }
 

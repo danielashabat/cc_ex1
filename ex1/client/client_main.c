@@ -111,15 +111,15 @@ int main(int argc, char* argv[]) {
 
 
 	printf("-CLIENT- sending to server : %d bytes\n", send_len);
-	count = sendto(client_socket, hamming_send, send_len, 0, (SOCKADDR*)&RecvAddr, sizeof(RecvAddr));
-	//SendMsg(SOCKET socket, char* BufferToSend, int BytesToSend, SOCKADDR_IN * RecvAddr)
-	if (count == SOCKET_ERROR) {
-		printf("sendto failed with error: %d\n", WSAGetLastError());
-		closesocket(client_socket);
-		WSACleanup();
-		return FAIL;
-	}
-	printf("-CLIENT- success sending to server, number of bytes sent: %d\n", count);
+	
+	SendMsg(client_socket, hamming_send, send_len, &RecvAddr);
+	//if (count == SOCKET_ERROR) {
+	//	printf("sendto failed with error: %d\n", WSAGetLastError());
+	//	closesocket(client_socket);
+	//	WSACleanup();
+	//	return FAIL;
+	//}
+	printf("-CLIENT- success sending to server, number of bytes sent: %d\n", send_len);
 
 
 	/*get feedback from channel*/
