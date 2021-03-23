@@ -411,13 +411,30 @@ char* reverse_hamming(char* in, int len, int *errors) { ///reciving string of ch
 
 int create_noise(char* in, char* out, int len, time_t* seed, double p) {
 	int change_bits = 0;
+	char *out_bits = (char*)calloc(len + 1, sizeof(char));
 	srand((unsigned)time(seed));
 	for (int i = 0; i < len; i++) {
 		if ((rand() / ((double)RAND_MAX)) < p) {
-			out[i] = (in[i] == 1) ? 0 : 1;
+			out_bits[i] = (in[i] == 1) ? '0' : '1';
 			change_bits++;
 		}
-		else out[i] = in[i];
+		else out_bits[i] = (in[i]==1) ? '1':'0';
 	}
+	char temp[9];
+	for (int j = 0; j < len/8; j++) { ///number_of_letters
+		temp[0] = out_bits[(1 - 1) + (8 * j)];
+		temp[1] = out_bits[(2 - 1) + (8 * j)];
+		temp[2] = out_bits[(3 - 1) + (8 * j)];
+		temp[3] = out_bits[(4 - 1) + (8 * j)];
+		temp[4] = out_bits[(5 - 1) + (8 * j)];
+		temp[5] = out_bits[(6 - 1) + (8 * j)];
+		temp[6] = out_bits[(7 - 1) + (8 * j)];
+		temp[7] = out_bits[(8 - 1) + (8 * j)];
+		temp[8] = '\0';
+		out[j] = strtol(temp, 0, 2);
+	}
+	out[len / 8] = '\0';
+	free(out_bits);
+
 	return change_bits;
 }
