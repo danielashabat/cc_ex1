@@ -17,6 +17,7 @@ Description –
 
 #include "common.h"// common defines for server and client 
 #include "encoder.h"
+#include "send_recv_tools.h"
 
 
 #define FILE_LEN 100//verify it
@@ -111,6 +112,7 @@ int main(int argc, char* argv[]) {
 
 	printf("-CLIENT- sending to server : %d bytes\n", send_len);
 	count = sendto(client_socket, hamming_send, send_len, 0, (SOCKADDR*)&RecvAddr, sizeof(RecvAddr));
+	//SendMsg(SOCKET socket, char* BufferToSend, int BytesToSend, SOCKADDR_IN * RecvAddr)
 	if (count == SOCKET_ERROR) {
 		printf("sendto failed with error: %d\n", WSAGetLastError());
 		closesocket(client_socket);

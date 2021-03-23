@@ -30,12 +30,21 @@
     <ClCompile Include="..\share\encoder.c">
       <Filter>Shared Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\share\send_recv_tools.c">
+      <Filter>Shared Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\share\common.h">
       <Filter>Shared Headers Files</Filter>
     </ClInclude>
     <ClInclude Include="..\share\encoder.h">
+      <Filter>Shared Headers Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\share\decoder.h">
+      <Filter>Shared Headers Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\share\send_recv_tools.h">
       <Filter>Shared Headers Files</Filter>
     </ClInclude>
   </ItemGroup>

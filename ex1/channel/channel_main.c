@@ -92,7 +92,7 @@ int main(int argc, char* argv[]) {
 char* hamming_reverse = NULL;
 int error_count=0;
 time_t t;
-int len_in;
+int len_in=0;
 
 string_out = (char*)malloc(count * 8 * sizeof(char));
 encoder_srting(RecvBuf, string_out, &len_in);//printd= the message in bits presentation 
@@ -101,10 +101,7 @@ char* string_with_noise = (char*)malloc(((len_in/8)+1) * sizeof(char));
 int change_bits= create_noise(string_out, string_with_noise, len_in, &t, 0.01);
 printf("change bits %d\n", change_bits);
 printf("after noise %s\n", string_with_noise);
-encoder_srting(string_with_noise, string_out, &len_in);
-hamming_reverse = reverse_hamming(string_out, len_in, &error_count); // string_out
 
-printf("after hamming reverse %s\n", hamming_reverse);
 
 
   //---------------------SEND TO SERVER--------------------------
