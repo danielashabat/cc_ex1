@@ -16,11 +16,16 @@ Description –
 #include <string.h>
 #include <winsock2.h>
 #include <WS2tcpip.h>
+#include <conio.h>
 #include "common.h"
 #include "decoder.h"
 #include "encoder.h"
 #include "send_recv_tools.h"
 
+
+int user_typed_End();
+int new_message_arrived(SOCKET socket, fd_set set);
+void create_feedback_message(char* feedback_message, int total_recieved_bytes, int total_wrote_bytes, int total_errors);
 
 int main(int argc, char* argv[]) {
     SOCKET ServerSocket = INVALID_SOCKET;
@@ -32,13 +37,14 @@ int main(int argc, char* argv[]) {
     int MessageLen = 0;
     char RecvBuf[MAX_BUFFER_SIZE];
     int AddrSize = sizeof(ClientAddr);
-    char* decoded_message;
-    int errors_count=0;
+    char* decoded_message=NULL;
+    int errors_count = 0;
+    char feedback_message[FEEDBACK_MSG_LEN] = { 0 };
 
     int StartupRes = WSAStartup(MAKEWORD(2, 2), &wsaData);
     if (StartupRes != NO_ERROR)
     {
-        printf("error %ld at WSAStartup( ), ending program.\n", WSAGetLastError());                                 
+        printf("error %ld at WSAStartup( ), ending program.\n", WSAGetLastError());
         return FAIL;
     }
     ServerSocket = socket(AF_INET, SOCK_DGRAM, 0);//UDP
@@ -47,7 +53,6 @@ int main(int argc, char* argv[]) {
         printf("Error at socket( ): %ld\n", WSAGetLastError());
         return 1;
     }
-
     ServerAddr.sin_family = AF_INET;
     ServerAddr.sin_addr.s_addr = INADDR_ANY;
     ServerAddr.sin_port = htons(MyPort);
@@ -58,50 +63,67 @@ int main(int argc, char* argv[]) {
         printf("bind( ) failed with error %ld. Ending program\n", WSAGetLastError());
         return 1;
     }
-
-    //--------------RECIEVE FROM CHANNEL---------------------------------
-
-    iResult = RecieveMsg(ServerSocket, RecvBuf, &MessageLen,&ClientAddr);
-    if (iResult == FAIL) {
-        ///cleanup
-        return FAIL; }
-    printf("-SERVER- recieved from client : %d bytes\n", MessageLen);
-
-    message_decoder(RecvBuf, &decoded_message, &errors_count);
-    printf("-SERVER- hamming reverse detected %d errors in message\n", errors_count);
-    printf("-SERVER- message after hamming reverse: %s, size of message: %d bytes\n", decoded_message, strlen(decoded_message));
     
-
-
-
-    //----------------------SEND FEEDBACK-------------------------
-    //after recieving all messages send summary to client 
-    char SendBuf[MAX_BUFFER_SIZE] = {0};//for debuging
-    int send_len = 0;
-    strcpy(SendBuf, "hello");
-    send_len = sizeof("hello");
-    printf("-SERVER- sending msg to client : %d bytes\n", MessageLen);
-    MessageLen= sendto(ServerSocket, SendBuf, send_len, 0, (SOCKADDR*)&ClientAddr, AddrSize);
-    printf("-SERVER- sent to client : %d bytes\n", MessageLen);
-
-
-
-    //-----------------------------------------------
-
-
-    //-----------------------------------------------
-    //file handling 
-  
+    fd_set set ;
+    FD_ZERO(&set); /* clear the set */
+    int BytesToSend = 0;
+    int state = RECIEVE;
+    int total_recieved_bytes=0, total_wrote_bytes=0, total_errors=0;
     FILE* newfileptr;
     newfileptr = fopen("newfile.txt", "wb");  // Open the file in binary mode
-    fwrite(decoded_message, 1, strlen(decoded_message), newfileptr);
-    fclose(newfileptr);
-    free(decoded_message);
+
+    while (state != EXIT) {
+        switch (state)
+        {
+        case SEND:
+            create_feedback_message(feedback_message, total_recieved_bytes, total_wrote_bytes, total_errors);
+            printf("%s", feedback_message);
+            BytesToSend = strlen(feedback_message);
+            printf("-SERVER- sending to server : %d bytes\n", BytesToSend);
+            iResult = SendMsg(ServerSocket, feedback_message, BytesToSend, &ClientAddr);
+            if (iResult == FAIL) {
+                state = EXIT;
+                break;
+            }
+            printf("-SERVER- success sending to server, number of bytes sent: %d\n", BytesToSend);
+
+            state = EXIT;
+            break;
+
+        case RECIEVE:
+            if (user_typed_End()) { state = SEND; break; } //when 'End' is typed, send feedback
+
+            if (new_message_arrived(ServerSocket, set))
+            {
+                iResult = RecieveMsg(ServerSocket, RecvBuf, &MessageLen, &ClientAddr);
+                if (iResult == FAIL) {
+                    state = EXIT;
+                    break;
+                }
+                printf("-SERVER- recieved from client : %d bytes\n", MessageLen);
+                state = DECODE;
+            }
+            break;
+
+        case DECODE:
+            message_decoder(RecvBuf, &decoded_message, &errors_count);
+            total_errors += errors_count;
+            total_recieved_bytes += MessageLen;
+            total_wrote_bytes += strlen(decoded_message);
+            fwrite(decoded_message, 1, strlen(decoded_message), newfileptr);
+            free(decoded_message);
+            state = RECIEVE;
+            break;
+        default:
+            printf("-ERROR- oops how did you get here?!\n");
+            break;
+        }
+    }
 
 
     //------------------CLOSE&CLEANUP-----------------------------
 
-        // Close the socket when finished receiving datagrams
+    fclose(newfileptr);
     printf("Finished receiving. Closing socket.\n");
     iResult = closesocket(ServerSocket);
     if (iResult == SOCKET_ERROR) {
@@ -112,5 +134,52 @@ int main(int argc, char* argv[]) {
     printf("bye server\n");
     wprintf(L"Exiting.\n");
     WSACleanup();
-	return 0;
+    return 0;
+    }
+
+    //functions for sevrer
+
+    //return 1 if user type 'End' in stdin, else return 0.
+    int user_typed_End() {
+        
+        int i = 0;
+        char input[4] = { 0 };
+        char exit_arr[3] = { 'E','n','d' };//need to chande!!!!!
+
+        if (_kbhit()) {
+            
+            for (int i = 0; i < 3; i++) {
+                input[i]= _getch();
+                if (exit_arr[i] != input[i]){
+                    return 0;
+                }
+             }
+            printf("user typed End\n");
+            return 1;
+        }
+       
+        return 0;
 }
+
+    int new_message_arrived(SOCKET socket, fd_set set) {
+        struct timeval time_out;
+        time_out.tv_sec = 0;//poll
+        time_out.tv_usec = 0;
+
+        FD_ZERO(&set); /* clear the set */
+        FD_SET(socket, &set);
+        int rv = select(socket + 1, &set, NULL, NULL, &time_out);
+        if (rv == SOCKET_ERROR) {
+            printf("-ERROR- select failed. socket error\n");
+            return 0;
+        }
+        if (rv== 0)
+            return 0;
+        else
+            return 1;
+    }
+
+    void create_feedback_message(char* feedback_message,int total_recieved_bytes, int total_wrote_bytes, int total_errors) {
+        
+        sprintf(feedback_message,"recieved: %d bytes\nwrote: %d bytes\ndetected & corrected %d errors\n", total_recieved_bytes, total_wrote_bytes, total_errors);
+    }

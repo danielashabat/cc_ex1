@@ -41,10 +41,10 @@ void generate_bits_string_from_file(FILE* fileptr, long filelen, char* encoded_f
 	}
 
 	//printf("encoded file: \n");
-	for (int i = 0; i < filelen * 8; i++) {
-		printf("%d", encoded_file[i]);
-	}
-	printf("\n");
+	//for (int i = 0; i < filelen * 8; i++) {
+	//	printf("%d", encoded_file[i]);
+	//}
+	//printf("\n");
 
 }
 
@@ -56,11 +56,11 @@ void encoder_srting(char* string_in, char* string_out, int* len) { // reciving a
 		memcpy(string_out + i * 8, bits, 8);
 	}
 	*len = strlen(string_in) * 8;
-	printf("encoded string: ");
-	for (int i = 0; i < strlen(string_in) * 8; i++) {
-		printf("%d", string_out[i]);
-	}
-	printf("\n");
+	//printf("encoded string: ");
+	//for (int i = 0; i < strlen(string_in) * 8; i++) {
+	//	printf("%d", string_out[i]);
+	//}
+	//printf("\n");
 }
 
 
@@ -179,7 +179,7 @@ char* hamming(int input_len, char* encoded_file, int *send_len) { ///reciving st
 
 	}
 	output[(frames_num * 15)] = '\0';
-	printf(">>>output is %s\n", output);
+	//printf(">>>output is %s\n", output);
 
 	int number_of_letters = ((frames_num * 15) % 8 == 0) ? ((frames_num * 15) / 8) : (((frames_num * 15) / 8) + 1);
 	char* output_letters = (char*)calloc(number_of_letters + 1, sizeof(char));

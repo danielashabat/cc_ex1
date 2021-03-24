@@ -13,30 +13,10 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Shared Headers Files">
-      <UniqueIdentifier>{eaaaa03d-a1cb-48b0-8293-aa72e471a1a6}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="channel_main.c">
+    <ClCompile Include="main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\share\encoder.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\share\send_recv_tools.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\share\common.h">
-      <Filter>Shared Headers Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\share\encoder.h">
-      <Filter>Shared Headers Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\share\send_recv_tools.h">
-      <Filter>Shared Headers Files</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>
