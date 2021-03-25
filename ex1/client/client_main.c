@@ -20,7 +20,6 @@ Description –
 #include "send_recv_tools.h"
 
 
-#define FILE_LEN 100//verify it
 
 
 //function decleration
@@ -30,9 +29,28 @@ long  FileLen(FILE* fileptr);
 
 int main(int argc, char* argv[]) {
 
-	char IP[] = SERVER_ADDRESS_STR;
+	////to run with command line
+	//char channel_ip_str[INET_ADDRSTRLEN];
+	//u_short ChannelPort;
+	//char filename[FILE_LEN] ;
+
+	//if (argc != 4) {
+	//	fprintf(stderr, "-ERROR- there is %d arguments, need to be 4\n", argc);
+	//	return FAIL;
+	//}
+
+	//strcpy(channel_ip_str, argv[1]);
+	//ChannelPort = atoi(argv[2]);
+	//strcpy(filename, argv[3]);
+
+
+
+	//to run without args in command line 
+	char channel_ip_str[] = CHANNEL_ADDRESS_STR;
 	int ChannelPort = CHANNEL_PORT;
 	char filename[FILE_LEN] = "test_file.txt";
+
+
 	SOCKET client_socket;
 	SOCKADDR_IN RecvAddr;
 
@@ -40,30 +58,37 @@ int main(int argc, char* argv[]) {
 	WSADATA wsaData; 
 	int iResult = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (iResult != NO_ERROR) {
-		DEBUG("Error at WSAStartup()\n");
+		fprintf(stderr, "-ERROR- at WSAStartup()\n");
 		return FAIL;
 	}
 	client_socket = socket(AF_INET, SOCK_DGRAM, 0);//UDP
 	if (client_socket == INVALID_SOCKET) {
-		printf("Error at socket(): %ld\n", WSAGetLastError());
+		fprintf(stderr, "-ERROR- at socket(): %ld\n", WSAGetLastError());
 		WSACleanup();
 		return 1;
 	}
 
 	RecvAddr.sin_family = AF_INET;
-	RecvAddr.sin_addr.s_addr = inet_addr(CHANNEL_ADDRESS_STR);
+	RecvAddr.sin_addr.s_addr = inet_addr(channel_ip_str);
 	RecvAddr.sin_port = htons(ChannelPort); //Setting the port to connect to.
 
 //---------------------------------------------
 	//file handling 
-	FILE* fileptr;
+	FILE* fileptr = NULL;;
 	long filelen;
 	char* encoded_file;//array of chars, each char value can be '0' or '1' (NOT the ASCI presentation)
 	char* hamming_send=NULL;
 	int send_len;
 
 	fileptr = fopen(filename, "rb");  // Open the file in binary mode
-	filelen = FileLen(fileptr); 
+	if (fileptr == NULL) {
+		fprintf(stderr, "-ERROR- fopen() failed\n");
+		return FAIL;
+	}
+	filelen = FileLen(fileptr);
+	if (filelen == 0) {
+		fprintf(stderr, "-ERROR- the file is empty");
+	}
 
 	encoded_file = (char*)malloc(filelen*8*sizeof(char));//allocate memory for the encoded file 
 	generate_bits_string_from_file(fileptr, filelen, encoded_file);//encode file from bytes to bits 
@@ -72,15 +97,10 @@ int main(int argc, char* argv[]) {
 	free(encoded_file);
 	fclose(fileptr); // Close the file
 
-	///*decoder (in server)*/
-	//char* msg_to_send_in_bits = NULL;
-	//msg_to_send_in_bits = (char*)malloc(send_len * 8 * sizeof(char));
-	//encoder_srting(hamming_send, msg_to_send_in_bits, &len_in);//debug
-
 //------------SEND TO CHANNEL---------------------------------
 	//sending messages
 	if (send_len != strlen(hamming_send)) {
-		printf("ERRROR: sendlen is different than hamming send len! send len: %d, hamming_send len: %d\n", send_len, strlen(hamming_send));
+		fprintf(stderr, "-ERROR- sendlen is different than hamming send len! send len: %d, hamming_send len: %d\n", send_len, strlen(hamming_send));
 		return FAIL;
 	}
 
@@ -92,7 +112,7 @@ int main(int argc, char* argv[]) {
 	int state = SEND;
 
 	if (RemainingBytesToSend < 0) {
-		printf("-ERROR- there is no bytes to send\n");
+		fprintf(stderr, "-ERROR- there is no bytes to send\n");
 		return FAIL;
 	}
 	while (state != EXIT) {
@@ -129,15 +149,16 @@ int main(int argc, char* argv[]) {
 				break;
 			}
 			printf("-CLIENT- recieved from server : %d bytes\n", MessageLen);
+			fprintf(stderr, "%s", RecvBuf);//print feedback message
 			state = EXIT;
 			break;
 		default:
-			printf("-ERROR- oops how did you get here?!\n");
+			fprintf(stderr, "-ERROR- oops how did you get here?!\n");
 			break;
 		}
 	}
 
-	printf("%s", RecvBuf);//print feedback message
+	
 
     //---------------------------------------------
     // Clean up and quit.
@@ -145,7 +166,7 @@ int main(int argc, char* argv[]) {
 	printf("Finished sending. Closing socket.\n");
 	iResult = closesocket(client_socket);
 	if (iResult == SOCKET_ERROR) {
-		printf("closesocket failed with error: %d\n", WSAGetLastError());
+		fprintf(stderr, "-ERROR-closesocket failed with error: %d\n", WSAGetLastError());
 		WSACleanup();
 		return 1;
 	}

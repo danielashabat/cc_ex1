@@ -28,12 +28,28 @@ int new_message_arrived(SOCKET socket, fd_set set);
 void create_feedback_message(char* feedback_message, int total_recieved_bytes, int total_wrote_bytes, int total_errors);
 
 int main(int argc, char* argv[]) {
+    /////to run with command line
+    //u_short MyPort;
+    //char NewFileName[FILE_LEN];
+
+    //if (argc != 3) {
+    //    fprintf(stderr, "-ERROR- there is %d arguments, need to be 3\n", argc);
+    //    return FAIL;
+    //}
+    //MyPort = atoi(argv[1]);
+    //strcpy(NewFileName, argv[2]);
+
+
+    //to run without arguments in command line
+    u_short MyPort = SERVER_PORT;
+    char NewFileName[FILE_LEN]="new.txt";
+
+
     SOCKET ServerSocket = INVALID_SOCKET;
     SOCKADDR_IN ServerAddr, ClientAddr = { 0 };
     int bindRes;
     int iResult;
     WSADATA wsaData;
-    int MyPort = SERVER_PORT;
     int MessageLen = 0;
     char RecvBuf[MAX_BUFFER_SIZE];
     int AddrSize = sizeof(ClientAddr);
@@ -44,13 +60,13 @@ int main(int argc, char* argv[]) {
     int StartupRes = WSAStartup(MAKEWORD(2, 2), &wsaData);
     if (StartupRes != NO_ERROR)
     {
-        printf("error %ld at WSAStartup( ), ending program.\n", WSAGetLastError());
+        fprintf(stderr, "-ERROR- %ld at WSAStartup( ), ending program.\n", WSAGetLastError());
         return FAIL;
     }
     ServerSocket = socket(AF_INET, SOCK_DGRAM, 0);//UDP
     if (ServerSocket == INVALID_SOCKET)
     {
-        printf("Error at socket( ): %ld\n", WSAGetLastError());
+        fprintf(stderr, "-ERROR- socket( ) failed: %ld\n", WSAGetLastError());
         return 1;
     }
     ServerAddr.sin_family = AF_INET;
@@ -60,7 +76,7 @@ int main(int argc, char* argv[]) {
     bindRes = bind(ServerSocket, (SOCKADDR*)&ServerAddr, sizeof(ServerAddr));
     if (bindRes == SOCKET_ERROR)
     {
-        printf("bind( ) failed with error %ld. Ending program\n", WSAGetLastError());
+        fprintf(stderr, "-ERROR- bind( ) failed with error %ld. Ending program\n", WSAGetLastError());
         return 1;
     }
     
@@ -69,15 +85,21 @@ int main(int argc, char* argv[]) {
     int BytesToSend = 0;
     int state = RECIEVE;
     int total_recieved_bytes=0, total_wrote_bytes=0, total_errors=0;
-    FILE* newfileptr;
-    newfileptr = fopen("newfile.txt", "wb");  // Open the file in binary mode
+    FILE* newfileptr = NULL;
 
+    newfileptr = fopen(NewFileName, "wb");  // Open the file in binary mode
+    if (newfileptr == NULL) {
+        fprintf(stderr, "-ERROR- fopen() failed");
+        return FAIL;
+    }
+
+    printf("Type 'End' when done\n");
     while (state != EXIT) {
         switch (state)
         {
         case SEND:
             create_feedback_message(feedback_message, total_recieved_bytes, total_wrote_bytes, total_errors);
-            printf("%s", feedback_message);
+            fprintf(stderr,"%s", feedback_message);
             BytesToSend = strlen(feedback_message);
             printf("-SERVER- sending to server : %d bytes\n", BytesToSend);
             iResult = SendMsg(ServerSocket, feedback_message, BytesToSend, &ClientAddr);
@@ -115,7 +137,7 @@ int main(int argc, char* argv[]) {
             state = RECIEVE;
             break;
         default:
-            printf("-ERROR- oops how did you get here?!\n");
+            fprintf(stderr, "-ERROR- oops how did you get here?!\n");
             break;
         }
     }
@@ -127,12 +149,11 @@ int main(int argc, char* argv[]) {
     printf("Finished receiving. Closing socket.\n");
     iResult = closesocket(ServerSocket);
     if (iResult == SOCKET_ERROR) {
-        wprintf(L"closesocket failed with error %d\n", WSAGetLastError());
+        fprintf(stderr, "-ERROR- closesocket failed with error %d\n", WSAGetLastError());
         return FAIL;
     }
     // Clean up and exit.
     printf("bye server\n");
-    wprintf(L"Exiting.\n");
     WSACleanup();
     return 0;
     }
@@ -154,7 +175,6 @@ int main(int argc, char* argv[]) {
                     return 0;
                 }
              }
-            printf("user typed End\n");
             return 1;
         }
        
@@ -170,7 +190,7 @@ int main(int argc, char* argv[]) {
         FD_SET(socket, &set);
         int rv = select(socket + 1, &set, NULL, NULL, &time_out);
         if (rv == SOCKET_ERROR) {
-            printf("-ERROR- select failed. socket error\n");
+            fprintf(stderr, "-ERROR- select failed. socket error\n");
             return 0;
         }
         if (rv== 0)

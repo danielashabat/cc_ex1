@@ -6,14 +6,14 @@ int RecieveMsg(SOCKET socket, char* Buffer, int* MessageLen, SOCKADDR_IN* Sender
     *MessageLen = recvfrom(socket, Buffer, MAX_BUFFER_SIZE, 0, (SOCKADDR*)SenderAddr, &AddrSize);
 
     if (*MessageLen == SOCKET_ERROR) {
-        printf("-ERROR- recvfrom failed with error %d\n", WSAGetLastError());
+        fprintf(stderr,"-ERROR- recvfrom failed with error %d\n", WSAGetLastError());
         return FAIL;
     }
     if (*MessageLen < MAX_BUFFER_SIZE) {
         Buffer[*MessageLen] = '\0';
     }
     else {
-        printf("-ERROR- buffer is too small!\n");
+        fprintf(stderr, "-ERROR- buffer is too small!\n");
         return FAIL;
     }
     return 0;
@@ -30,7 +30,7 @@ int SendMsg(SOCKET socket, char* BufferToSend, int BytesToSend, SOCKADDR_IN* Rec
         BytesTransferred = sendto(socket, BufferToSend, BytesToSend, 0, (SOCKADDR*)RecvAddr, AddrSize);
         if (BytesTransferred == SOCKET_ERROR)
         {
-            printf("-ERROR- sendto() failed, error %d\n", WSAGetLastError());
+            fprintf(stderr, "-ERROR- sendto() failed, error %d\n", WSAGetLastError());
             return FAIL;
         }
 
