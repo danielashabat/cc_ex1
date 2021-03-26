@@ -10,6 +10,7 @@
 #define CHANNEL_ADDRESS_STR "127.0.0.1"
 #define FEEDBACK_MSG_LEN 100
 #define FILE_LEN 100//verify it
+#define DOMINATOR 65536
 
 typedef enum { FAIL = 1 } return_values;
 typedef enum { EXIT , SEND, RECIEVE,DECODE, ADD_NOISE,FEEDBACK} states;

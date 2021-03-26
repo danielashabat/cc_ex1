@@ -33,8 +33,9 @@ int main(int argc, char* argv[]) {
     //ServerPort = atoi(argv[3]);
     //int p_n = atoi(argv[4]);
     //int seed= atoi(argv[5]);
-    int p_n = 0; //debug
-    int seed; //debug
+
+    int p_n = 200; //debug
+    int seed=1; //debug
     //to run without commandline
     int MyPort = CHANNEL_PORT;
     int ServerPort = SERVER_PORT;
@@ -92,7 +93,6 @@ int main(int argc, char* argv[]) {
     int totalChangedBits = 0;
     int feedback_message = 0;
     char* string_out = NULL;
-    time_t t;
     int len_in = 0;
     char client_ip_str[INET_ADDRSTRLEN];
     int change_bits = 0;
@@ -148,7 +148,8 @@ int main(int argc, char* argv[]) {
             encoder_srting(RecvBuf, string_out, &len_in);//printd= the message in bits presentation 
 
             char* string_with_noise = (char*)malloc(((len_in / 8) + 1) * sizeof(char));
-            change_bits = create_noise(string_out, SendBuf, len_in, &seed, p_n/ (2^16));
+            change_bits = create_noise(string_out, SendBuf, len_in, seed, (double)p_n/DOMINATOR);
+            printf("%f\n",(double) p_n/DOMINATOR);
             totalChangedBits += change_bits;
             //printf("change bits %d\n", change_bits);
             //printf("after noise %s\n", string_with_noise);

@@ -30,16 +30,16 @@ void convert_byte_to_bits(char byte, char bits_array[]) {
 
 //read file in bytes and convert the file to string of 0/1
 void generate_bits_string_from_file(FILE* fileptr, long filelen, char* encoded_file) {
-
+	int i = 0;
 	char buffer;
 	unsigned char bits[8] = { 0 };
 
-	for (int i = 0; i < filelen; i++) {
+	for ( i = 0; i < filelen; i++) {
 		fread(&buffer, 1, 1, fileptr); // Read in the entire file
 		convert_byte_to_bits(buffer, bits);
 		memcpy(encoded_file + i * 8, bits, 8);
 	}
-
+	//encoded_file[i] = '\0';
 	//printf("encoded file: \n");
 	//for (int i = 0; i < filelen * 8; i++) {
 	//	printf("%d", encoded_file[i]);
@@ -70,7 +70,7 @@ char* hamming(int input_len, char* encoded_file, int *send_len) { ///reciving st
 	int frames_num = input_len / 11;
 	int module_frames= input_len % 11;
 	char *output = (char*)calloc((frames_num * 15)+1, sizeof(char));
-	
+	//printf("encoded file len %d, bumber of frames:%d\n", strlen(encoded_file), frames_num);
 	int c_1, c_2, c_4, c_8;
 	char d3, d5, d6, d7, d9, d10, d11, d12,d13,d14 ,d15;
 	//printf(">>>>%d frames, %d left\n", frames_num, module_frames);
@@ -179,10 +179,15 @@ char* hamming(int input_len, char* encoded_file, int *send_len) { ///reciving st
 
 	}
 	output[(frames_num * 15)] = '\0';
-	//printf(">>>output is %s\n", output);
-
+	//printf(">>>output len is %d\n", strlen(output));
+	char* output_letters = NULL;
 	int number_of_letters = ((frames_num * 15) % 8 == 0) ? ((frames_num * 15) / 8) : (((frames_num * 15) / 8) + 1);
-	char* output_letters = (char*)calloc(number_of_letters + 1, sizeof(char));
+	output_letters = (char*)malloc((number_of_letters + 1)*sizeof(char));
+	if (output_letters == NULL) {
+		fprintf(stderr, "allocation failed!\n");
+	}
+	//fprintf(stderr, "number_of_letters is: %d, the size of output_letters is: %d\n", number_of_letters, sizeof(output_letters)/sizeof(char));
+
 	*send_len = number_of_letters;
 	char temp[9];
 	//char c;
@@ -224,7 +229,7 @@ char* hamming(int input_len, char* encoded_file, int *send_len) { ///reciving st
 	}
 	output_letters[number_of_letters] = '\0';
 	free(output);
-	//printf("the output in letters %s\n", output_letters);
+	//printf("the output_letters len is %d\n", strlen(output_letters));
 	return output_letters;
 	
 }
@@ -409,10 +414,10 @@ char* reverse_hamming(char* in, int len, int *errors) { ///reciving string of ch
 }
 
 
-int create_noise(char* in, char* out, int len, time_t* seed, double p) {
+int create_noise(char* in, char* out, int len, int seed, double p) {
 	int change_bits = 0;
 	char *out_bits = (char*)calloc(len + 1, sizeof(char));
-	srand((unsigned)time(seed));
+	srand(seed);
 	for (int i = 0; i < len; i++) {
 		if ((rand() / ((double)RAND_MAX)) < p) {
 			out_bits[i] = (in[i] == 1) ? '0' : '1';
