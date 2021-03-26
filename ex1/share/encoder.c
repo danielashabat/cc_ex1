@@ -354,19 +354,19 @@ char* reverse_hamming(char* in, int len, int *errors) { ///reciving string of ch
 		}
 		else data[15 - 1] = '0';
 		data[15] = '\0';
-		printf("data is %s\n", data);
+		//printf("data is %s\n", data);
 		checks_sum[0] = (c_8 % 2 == 1) ? 1 : 0;
 		checks_sum[1] = (c_4 % 2 == 1) ? 1 : 0;
 		checks_sum[2] = (c_2 % 2 == 1) ? 1 : 0;
 		checks_sum[3] = (c_1 % 2 == 1) ? 1 : 0;
 		check_index = checks_sum[3]  + (checks_sum[2] * 2 ) + (checks_sum[1] * 4) + (checks_sum[0] * 8);
-		printf("c_8 = %d, c_4 = %d , c_2 = %d, c_1 = %d\n", c_8, c_4, c_2, c_1);
-		printf("check_index is %d \n", check_index);
+		//printf("c_8 = %d, c_4 = %d , c_2 = %d, c_1 = %d\n", c_8, c_4, c_2, c_1);
+		//printf("check_index is %d \n", check_index);
 		
 		if (check_index != 0) {
 			*errors = *errors+1;
 			data[check_index - 1] = (data[check_index - 1] == '1') ? '0' : '1';
-			printf("data with fix %s\n", data);
+			//printf("data with fix %s\n", data);
 		}
 		output[(1 - 1) + i * 11] = data[3-1];
 		output[(2 - 1) + i * 11] = data[5-1];
