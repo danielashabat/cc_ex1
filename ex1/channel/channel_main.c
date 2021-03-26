@@ -18,28 +18,29 @@ Description –
 #include "encoder.h"
 
 int main(int argc, char* argv[]) {
-    ////to run with command line
-    //u_short MyPort;
-    //char server_ip_str[INET_ADDRSTRLEN];
-    //u_short ServerPort;
+    //to run with command line
+    u_short MyPort;
+    char server_ip_str[INET_ADDRSTRLEN];
+    u_short ServerPort;
 
-    //if (argc != 4) {
-    //    fprintf(stderr, "-ERROR- there is %d arguments, need to be 4\n", argc);
-    //    return FAIL;
-    //}
+    if (argc != 6) {
+        fprintf(stderr, "-ERROR- there is %d arguments, need to be 6\n", argc);
+        return FAIL;
+    }
 
-    //MyPort = atoi(argv[1]);
-    //strcpy(server_ip_str, argv[2]);
-    //ServerPort = atoi(argv[3]);
-    //int p_n = atoi(argv[4]);
-    //int seed= atoi(argv[5]);
+    MyPort = atoi(argv[1]);
+    strcpy(server_ip_str, argv[2]);
+    ServerPort = atoi(argv[3]);
+    int p_n = atoi(argv[4]);
+    int seed= atoi(argv[5]);
 
-    int p_n = 0; //debug
-    int seed=1; //debug
-    //to run without commandline
-    int MyPort = CHANNEL_PORT;
-    int ServerPort = SERVER_PORT;
-    char server_ip_str[] = SERVER_ADDRESS_STR;
+
+    //   //to run without commandline
+    //int p_n = 18; //debug
+    //int seed=1; //debug
+    //int MyPort = CHANNEL_PORT;
+    //int ServerPort = SERVER_PORT;
+    //char server_ip_str[] = SERVER_ADDRESS_STR;
 
   
     SOCKET ChannelSocket = INVALID_SOCKET;
@@ -145,14 +146,11 @@ int main(int argc, char* argv[]) {
 
         case ADD_NOISE:
             string_out = (char*)malloc(MessageLen * 8 * sizeof(char));
-            encoder_srting(RecvBuf, string_out, &len_in);//printd= the message in bits presentation 
+            encoder_srting(RecvBuf, MessageLen, string_out, &len_in);//printd= the message in bits presentation 
 
             char* string_with_noise = (char*)malloc(((len_in / 8) + 1) * sizeof(char));
             change_bits = create_noise(string_out, SendBuf, len_in, seed, (double)p_n/DOMINATOR);
-            printf("%f\n",(double) p_n/DOMINATOR);
             totalChangedBits += change_bits;
-            //printf("change bits %d\n", change_bits);
-            //printf("after noise %s\n", string_with_noise);
             state = SEND;
             break;
 

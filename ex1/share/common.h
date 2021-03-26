@@ -13,7 +13,7 @@
 #define DOMINATOR 65536
 
 typedef enum { FAIL = 1 } return_values;
-typedef enum { EXIT , SEND, RECIEVE,DECODE, ADD_NOISE,FEEDBACK} states;
+typedef enum { EXIT , SEND, RECIEVE,DECODE, ADD_NOISE} states;
 
 
 

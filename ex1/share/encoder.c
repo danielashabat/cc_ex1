@@ -48,14 +48,14 @@ void generate_bits_string_from_file(FILE* fileptr, long filelen, char* encoded_f
 
 }
 
-void encoder_srting(char* string_in, char* string_out, int* len) { // reciving a string of chars, returning a string of 0/1 
+void encoder_srting(char* string_in, int MessageLen, char* string_out, int* len) { // reciving a string of chars, returning a string of 0/1 
 	unsigned char bits[8] = { 0 };
 	
-	for (int i = 0; i < strlen(string_in); i++) {
+	for (int i = 0; i < MessageLen; i++) {
 		convert_byte_to_bits(string_in[i], bits);
 		memcpy(string_out + i * 8, bits, 8);
 	}
-	*len = strlen(string_in) * 8;
+	*len = MessageLen * 8;
 	//printf("encoded string: ");
 	//for (int i = 0; i < strlen(string_in) * 8; i++) {
 	//	printf("%d", string_out[i]);
@@ -234,7 +234,7 @@ char* hamming(int input_len, char* encoded_file, int *send_len) { ///reciving st
 	
 }
 
-char* reverse_hamming(char* in, int len, int *errors) { ///reciving string of chars==0/1 (not '0' or '1') and its len. returning string of alphabet after reverse hamming.
+char* reverse_hamming(char* in, int len, int *errors, int* message_decoded_len) { ///reciving string of chars==0/1 (not '0' or '1') and its len. returning string of alphabet after reverse hamming.
 	//printf("the len of the input is %d\n", len);
 	int efective_len = len - len % 15;
 	//printf("the efective len of the input is %d\n", efective_len);
@@ -392,6 +392,7 @@ char* reverse_hamming(char* in, int len, int *errors) { ///reciving string of ch
 	//printf("output after hamming reverse is %s\n", output);
 
 	int number_of_letters = (frames_num*11)/8;
+	printf("message after hamming reverse is %d, frames_num is:%d\n", number_of_letters, frames_num);
 	char* output_letters = (char*)calloc(number_of_letters + 1, sizeof(char));
 	char temp[9];
 	//char c;
@@ -409,7 +410,7 @@ char* reverse_hamming(char* in, int len, int *errors) { ///reciving string of ch
 	}
 	free(output);
 	output_letters[number_of_letters] = '\0';
-	//printf("output_letters after hamming reverse is %s\n", output_letters);
+	*message_decoded_len = number_of_letters;
 	return output_letters;
 }
 

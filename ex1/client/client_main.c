@@ -9,11 +9,15 @@ Description –
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
 
+
 #include <stdio.h>
 #include <stdlib.h> 
 #include <string.h>
 #include <winsock2.h>
 #include <WS2tcpip.h>
+#include <Windows.h>
+
+
 
 #include "common.h"// common defines for server and client 
 #include "encoder.h"
@@ -29,26 +33,26 @@ long  FileLen(FILE* fileptr);
 
 int main(int argc, char* argv[]) {
 
-	////to run with command line
-	//char channel_ip_str[INET_ADDRSTRLEN];
-	//u_short ChannelPort;
-	//char filename[FILE_LEN] ;
+	//to run with command line
+	char channel_ip_str[INET_ADDRSTRLEN];
+	u_short ChannelPort;
+	char filename[FILE_LEN] ;
 
-	//if (argc != 4) {
-	//	fprintf(stderr, "-ERROR- there is %d arguments, need to be 4\n", argc);
-	//	return FAIL;
-	//}
+	if (argc != 4) {
+		fprintf(stderr, "-ERROR- there is %d arguments, need to be 4\n", argc);
+		return FAIL;
+	}
 
-	//strcpy(channel_ip_str, argv[1]);
-	//ChannelPort = atoi(argv[2]);
-	//strcpy(filename, argv[3]);
+	strcpy(channel_ip_str, argv[1]);
+	ChannelPort = atoi(argv[2]);
+	strcpy(filename, argv[3]);
 
 
 
-	//to run without args in command line 
-	char channel_ip_str[] = CHANNEL_ADDRESS_STR;
-	int ChannelPort = CHANNEL_PORT;
-	char filename[FILE_LEN] = "test_jpg.jpg";
+	////to run without args in command line 
+	//char channel_ip_str[] = CHANNEL_ADDRESS_STR;
+	//int ChannelPort = CHANNEL_PORT;
+	//char filename[FILE_LEN] = "test_file.txt";
 
 
 	SOCKET client_socket;
@@ -99,10 +103,8 @@ int main(int argc, char* argv[]) {
 
 //------------SEND TO CHANNEL---------------------------------
 	//sending messages
-	/*if (send_len != strlen(hamming_send)) {
-		fprintf(stderr, "-ERROR- sendlen is different than hamming send len! send len: %d, hamming_send len: %d\n", send_len, strlen(hamming_send));
-		return FAIL;
-	}*/
+
+	fprintf(stderr, "-CLIENT- send len: %d\n", send_len);
 
 	int MessageLen = 0;
 	char RecvBuf[MAX_BUFFER_SIZE];
@@ -136,8 +138,10 @@ int main(int argc, char* argv[]) {
 			RemainingBytesToSend -= BytesToSend;
 			position += BytesToSend;
 			BytesToSend = RemainingBytesToSend;
-			if (RemainingBytesToSend > 0)
+			if (RemainingBytesToSend > 0) {
+				Sleep(100);//sleep for 1 second between sending messages
 				state = SEND;
+			}
 			else
 				state = RECIEVE;
 			break;

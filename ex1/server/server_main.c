@@ -28,21 +28,21 @@ int new_message_arrived(SOCKET socket, fd_set set);
 void create_feedback_message(char* feedback_message, int total_recieved_bytes, int total_wrote_bytes, int total_errors);
 
 int main(int argc, char* argv[]) {
-    /////to run with command line
-    //u_short MyPort;
-    //char NewFileName[FILE_LEN];
+    ///to run with command line
+    u_short MyPort;
+    char NewFileName[FILE_LEN];
 
-    //if (argc != 3) {
-    //    fprintf(stderr, "-ERROR- there is %d arguments, need to be 3\n", argc);
-    //    return FAIL;
-    //}
-    //MyPort = atoi(argv[1]);
-    //strcpy(NewFileName, argv[2]);
+    if (argc != 3) {
+        fprintf(stderr, "-ERROR- there is %d arguments, need to be 3\n", argc);
+        return FAIL;
+    }
+    MyPort = atoi(argv[1]);
+    strcpy(NewFileName, argv[2]);
 
 
-    //to run without arguments in command line
-    u_short MyPort = SERVER_PORT;
-    char NewFileName[FILE_LEN]="new.txt";
+    ////to run without arguments in command line
+    //u_short MyPort = SERVER_PORT;
+    //char NewFileName[FILE_LEN]="new_text.txt";
 
 
     SOCKET ServerSocket = INVALID_SOCKET;
@@ -54,6 +54,7 @@ int main(int argc, char* argv[]) {
     char RecvBuf[MAX_BUFFER_SIZE];
     int AddrSize = sizeof(ClientAddr);
     char* decoded_message=NULL;
+    int message_decoded_len = 0;
     int errors_count = 0;
     char feedback_message[FEEDBACK_MSG_LEN] = { 0 };
 
@@ -128,11 +129,12 @@ int main(int argc, char* argv[]) {
             break;
 
         case DECODE:
-            message_decoder(RecvBuf, &decoded_message, &errors_count);
+            message_decoder(RecvBuf, MessageLen, &decoded_message, &message_decoded_len, &errors_count);
             total_errors += errors_count;
             total_recieved_bytes += MessageLen;
-            total_wrote_bytes += strlen(decoded_message);
-            fwrite(decoded_message, 1, strlen(decoded_message), newfileptr);
+            total_wrote_bytes += message_decoded_len;
+            printf("-SERVER- bytes wrote: %d\n", message_decoded_len);
+            fwrite(decoded_message, 1, message_decoded_len, newfileptr);
             free(decoded_message);
             state = RECIEVE;
             break;
