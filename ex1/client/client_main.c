@@ -48,7 +48,7 @@ int main(int argc, char* argv[]) {
 	//to run without args in command line 
 	char channel_ip_str[] = CHANNEL_ADDRESS_STR;
 	int ChannelPort = CHANNEL_PORT;
-	char filename[FILE_LEN] = "test_file.txt";
+	char filename[FILE_LEN] = "test_jpg.jpg";
 
 
 	SOCKET client_socket;
@@ -99,10 +99,10 @@ int main(int argc, char* argv[]) {
 
 //------------SEND TO CHANNEL---------------------------------
 	//sending messages
-	if (send_len != strlen(hamming_send)) {
+	/*if (send_len != strlen(hamming_send)) {
 		fprintf(stderr, "-ERROR- sendlen is different than hamming send len! send len: %d, hamming_send len: %d\n", send_len, strlen(hamming_send));
 		return FAIL;
-	}
+	}*/
 
 	int MessageLen = 0;
 	char RecvBuf[MAX_BUFFER_SIZE];

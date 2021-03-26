@@ -34,7 +34,7 @@ int main(int argc, char* argv[]) {
     //int p_n = atoi(argv[4]);
     //int seed= atoi(argv[5]);
 
-    int p_n = 200; //debug
+    int p_n = 0; //debug
     int seed=1; //debug
     //to run without commandline
     int MyPort = CHANNEL_PORT;
