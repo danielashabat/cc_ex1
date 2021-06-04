@@ -1,23 +1,31 @@
 #include <stdio.h>
-#include "linked_list.h"
+#include "queue_and_package.h"
 
 int main() {
-	LinkedList* list = NULL;
-	list= initialize_linked_list();
-
-	//creates new package and add to list
-	Package* package=  create_package(0, "source", 0, "dest" , 0, 100, 1);
-	add_to_end_of_list(package, list);
-	package = create_package(0, "source", 0, "dest", 0, 100, 1);
-	add_to_end_of_list(package, list);
-
-	print_list(list);
-	package =get_package_by_ID(0,list);
-	delete_package_from_list_by_ID(package->ID, list);
-	print_list(list);
+	QUEUE* head = NULL;
 
 
-	terminate_list(list);
+	Package* new_package =  CreatePackage(0, "source", 0, "dest" , 0, 100, 1,7);
+	InsertNewPackage(&head, new_package);
 
+	new_package = CreatePackage(0, "source2", 0, "dest", 0, 100, 1, 5);
+	InsertNewPackage(&head, new_package);
 
+	new_package = CreatePackage(0, "source2", 0, "dest", 0, 100, 1, 3);
+	InsertNewPackage(&head, new_package);
+
+	PrintQueues(head);
+
+	//pop all packages
+	new_package = GetPackageWithMinimumLast(&head);
+	printf("pop package with minimum last : %f\n", new_package->last);
+
+	new_package = GetPackageWithMinimumLast(&head);
+	printf("pop package with minimum last : %f\n", new_package->last);
+	PrintQueues(head);
+
+	new_package = GetPackageWithMinimumLast(&head);
+	printf("pop package with minimum last : %f\n", new_package->last);
+
+	PrintQueues(head);
 }
