@@ -1,19 +1,7 @@
 #ifndef	LINKED_LIST_H
 #define	LINKED_LIST_H	
 
-typedef struct Package {
-	int time;
-	char Sadd[20];
-	int Sport;
-	char Dadd[20];
-	int Dport;
-	int length;
-	float weight;//optional
-	int remain_time_to_finish;
-	int ID;
-	struct Package* next;
-
-} Package;
+#include "queue_and_package.h"
 
 
 

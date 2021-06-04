@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "linked_list.h"
+#include "queue_and_package.h"
 
 
 ///internal function declarations:
@@ -48,31 +49,31 @@ LinkedList* initialize_linked_list() {
 
 
 
-Package* create_package(int time, char* Sadd, int Sport, char* Dadd, int Dport, int length, float weight) {
-	Package* package = NULL;
-	package = (Package*)malloc(sizeof(Package));
-	if (package == NULL) {
-		printf("ERROR: malloc() failed\n");
-		exit(1);
-	}
-	package->time = time;
-	package->Sport = Sport;
-	package->Dport = Dport;
-	package->length = length;
-	package->weight = weight;
-	package->remain_time_to_finish = length;
-
-	strcpy(package->Sadd,Sadd);
-	strcpy(package->Dadd,Dadd);
-	
-	package->next = NULL;
-
-	//assign an uniqify ID for every package
-	static ID = 0;
-	package->ID = ID; 
-	ID++;
-	return package;
-}
+//Package* create_package(int time, char* Sadd, int Sport, char* Dadd, int Dport, int length, float weight) {
+//	Package* package = NULL;
+//	package = (Package*)malloc(sizeof(Package));
+//	if (package == NULL) {
+//		printf("ERROR: malloc() failed\n");
+//		exit(1);
+//	}
+//	package->time = time;
+//	package->Sport = Sport;
+//	package->Dport = Dport;
+//	package->length = length;
+//	package->weight = weight;
+//	package->remain_time_to_finish = length;
+//
+//	strcpy(package->Sadd,Sadd);
+//	strcpy(package->Dadd,Dadd);
+//	
+//	package->next = NULL;
+//
+//	//assign an uniqify ID for every package
+//	static ID = 0;
+//	package->ID = ID; 
+//	ID++;
+//	return package;
+//}
 
 void insert_first_package(Package* Package, LinkedList* list) {
 	list->first = Package;
