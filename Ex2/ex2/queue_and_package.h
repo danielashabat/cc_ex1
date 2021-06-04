@@ -33,7 +33,7 @@ typedef struct Queue {
 Package* CreatePackage(int time, char* Sadd, int Sport, char* Dadd, int Dport, int length, float weight, float last);
 
 
-/*this function insert the package to queue*/
+/*this function search for the right queue for the new package and insert it to the  queue, if no queue found it will create new queue and insert the package*/
 void InsertNewPackage(QUEUE ** ptr_head, Package* new_package);
 
 /*this function returns the package with minimum last*/
