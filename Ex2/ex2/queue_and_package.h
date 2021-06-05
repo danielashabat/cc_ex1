@@ -40,4 +40,10 @@ void InsertNewPackage(QUEUE ** ptr_head, Package* new_package);
 Package* GetPackageWithMinimumLast(QUEUE** ptr_head);
 
 void PrintQueues(QUEUE* head);
+
+
+///New functions: 
+/// function that sums the weights of the active links.
+/// function that returning the last of the p(i-1)
+/// function that going over the queues and calling last calculating function. 
 #endif

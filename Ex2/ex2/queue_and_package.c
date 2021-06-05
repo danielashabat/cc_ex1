@@ -269,10 +269,11 @@ void PrintQueues(QUEUE* head) {
 		i++;
 		package = queue->head;
 		for (int k = 0; k < queue->size; k++) {
-			printf(" %f -> ", package->last);
+			printf(" %f %d-> ", package->last, package->time);
 			package = package->next;
 		}
 		printf("\n");
 		queue = queue->next;
 	}
 }
+
