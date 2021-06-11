@@ -25,78 +25,86 @@ int main(int argc, char* argv[]) {
 	int arrive = 0; // 1 if arrive a packet at time rtime
 	float round_t=0;
 
-	Sadd = (char*)malloc(16*sizeof(char));
-	Dadd = (char*)malloc(16 * sizeof(char));
-	FILE* input = NULL;
-	input = fopen(argv[1], "r");
-	Package* new_package= (Package*)malloc(sizeof(Package));
+	//Sadd = (char*)malloc(16*sizeof(char));
+	//Dadd = (char*)malloc(16 * sizeof(char));
+	//FILE* input = NULL;
+	//input = fopen(argv[1], "r");
+	//Package* new_package= (Package*)malloc(sizeof(Package));
 
-	/// reading first line from file
-	//fscanf(input, "%[^\n]", all_line);
-	const size_t line_size = 100;
-	char* line = malloc(line_size);
-	fgets(line, line_size, input); // return NULL if empty 
+	///// reading first line from file
+	////fscanf(input, "%[^\n]", all_line);
+	//const size_t line_size = 100;
+	//char* line = malloc(line_size);
+	//fgets(line, line_size, input); // return NULL if empty 
 
-	weight = check_for_weight(line);
-	if (weight == 1.0) {
-		sscanf(line, "%d %s %d %s %d %d", &time, Sadd, &Sport, Dadd, &Dport, &length);
-	}
-	else {
-		sscanf(line, "%d %s %d %s %d %d %f", &time, Sadd, &Sport, Dadd, &Dport, &length, &weight);
-	}
-	while (1) {
-		while (1) {
-			
-			new_package = CreatePackage(time, Sadd, Sport, Dadd, Dport, length, weight, -1);
-			if (time == rtime) {
-				arrive = 1;
-				InsertNewPackage(&head, new_package);
-				if (fgets(line, line_size, input) == NULL) {
-					flag_eof = 1;
-					break;
-				}
-				weight = check_for_weight(line);
-				if (weight == 1.0) {
-					sscanf(line, "%d %s %d %s %d %d", &time, Sadd, &Sport, Dadd, &Dport, &length);
-				}
-				else {
-					sscanf(line, "%d %s %d %s %d %d %f", &time, Sadd, &Sport, Dadd, &Dport, &length, &weight);
-				}
-			}
-			else break;
-		}
-		if (flag_eof == 1) break;
-		if (arrive == 1) { // packets had arrived
-			/// here we are going to calculate roundt
-			last_t_arrive = rtime;
-		}
-		rtime++;
-		arrive = 0;
-	}
+	//weight = check_for_weight(line);
+	//if (weight == 1.0) {
+	//	sscanf(line, "%d %s %d %s %d %d", &time, Sadd, &Sport, Dadd, &Dport, &length);
+	//}
+	//else {
+	//	sscanf(line, "%d %s %d %s %d %d %f", &time, Sadd, &Sport, Dadd, &Dport, &length, &weight);
+	//}
+	//while (1) {
+	//	while (1) {
+	//		
+	//		new_package = CreatePackage(time, Sadd, Sport, Dadd, Dport, length, weight, -1);
+	//		if (time == rtime) {
+	//			arrive = 1;
+	//			InsertNewPackage(&head, new_package);
+	//			if (fgets(line, line_size, input) == NULL) {
+	//				flag_eof = 1;
+	//				break;
+	//			}
+	//			weight = check_for_weight(line);
+	//			if (weight == 1.0) {
+	//				sscanf(line, "%d %s %d %s %d %d", &time, Sadd, &Sport, Dadd, &Dport, &length);
+	//			}
+	//			else {
+	//				sscanf(line, "%d %s %d %s %d %d %f", &time, Sadd, &Sport, Dadd, &Dport, &length, &weight);
+	//			}
+	//		}
+	//		else break;
+	//	}
+	//	if (flag_eof == 1) break;
+	//	if (arrive == 1) { // packets had arrived
+	//		/// here we are going to calculate roundt
+	//		last_t_arrive = rtime;
+	//	}
+	//	rtime++;
+	//	arrive = 0;
+	//}
 
-	//Package* new_package =  CreatePackage(0, "source", 0, "dest" , 0, 100, 1,7);
-	//InsertNewPackage(&head, new_package);
+	//sorry Mor, commented all your work...
 
-	//new_package = CreatePackage(0, "source2", 0, "dest", 0, 100, 1, 5);
-	//InsertNewPackage(&head, new_package);
 
-	//new_package = CreatePackage(0, "source2", 0, "dest", 0, 100, 1, 3);
-	//InsertNewPackage(&head, new_package);
 
-	//PrintQueues(head);
+	Package* pack1 =  CreatePackage(0, "source", 0, "dest" , 0, 100, 1,-1);
+	InsertNewPackage(&head, pack1);
 
-	////pop all packages
-	//new_package = GetPackageWithMinimumLast(&head);
-	//printf("pop package with minimum last : %f\n", new_package->last);
+	Package*  new_package = CreatePackage(0, "source2", 0, "dest", 0, 50, 1, -1);
+	InsertNewPackage(&head, new_package);
 
-	//new_package = GetPackageWithMinimumLast(&head);
-	//printf("pop package with minimum last : %f\n", new_package->last);
+	new_package = CreatePackage(0, "source2", 0, "dest", 0, 20, 1, -1);
+	InsertNewPackage(&head, new_package);
+
+	PrintQueues(head);
+	UpdateLast(head, round_t);
+	PrintQueues(head);
+	//pop all packages
+	new_package = GetPackageWithMinimumLast(&head);
+	printf("pop package with minimum last : %f\n", new_package->last);
+
+	new_package = GetPackageWithMinimumLast(&head);
+	printf("pop package with minimum last : %f\n", new_package->last);
+	int sum = SumActiveLinksWeights(head);
+	printf("the sum of active links: %d\n", sum);
 	PrintQueues(head);
 
-	//new_package = GetPackageWithMinimumLast(&head);
-	//printf("pop package with minimum last : %f\n", new_package->last);
-
-	//PrintQueues(head);
+	new_package = GetPackageWithMinimumLast(&head);
+	printf("pop package with minimum last : %f\n", new_package->last);
+	sum = SumActiveLinksWeights(head);
+	printf("the sum of active links: %d\n", sum);
+	PrintQueues(head);
 
 	//fscanf("%d %d %d\n",  );
 

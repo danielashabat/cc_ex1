@@ -72,6 +72,7 @@ void Push(QUEUE* queue, Package* package) {
 		queue->size++;//increase queue's size by 1
 	}
 	else {//if queue is not empty
+		package->prev = queue->tail;
 		(queue->tail)->next = package; //link the last node in the queue to the new node
 		queue->tail = package;//updating the tail in queue to the new node
 		queue->size++;//increase queue's size by 1
@@ -97,6 +98,7 @@ Package* CreatePackage(int time, char* Sadd, int Sport, char* Dadd, int Dport, i
 	strcpy(package->Dadd, Dadd);
 
 	package->next = NULL;
+	package->prev = NULL;
 	return package;
 }
 
@@ -277,3 +279,47 @@ void PrintQueues(QUEUE* head) {
 	}
 }
 
+int SumActiveLinksWeights(QUEUE* head) {
+	QUEUE* queue = head;
+	float sum = 0;
+
+	while (queue != NULL) {
+		sum += queue->head->weight;
+		queue = queue->next;
+	}
+	return sum;
+}
+
+int GetPreviousPackageLast(Package* package) {
+	Package* prev_package = package->prev;
+
+	if (prev_package == NULL) {
+		return 0;
+	}
+	return prev_package->last;
+}
+
+void UpdateLast(QUEUE* head, float round_t) {
+
+	QUEUE* queue = head;
+	Package* pack;
+	int prev_last = 0;
+	while (queue != NULL ) {
+		pack = queue->head;
+		while (pack != NULL) {
+			if (pack->last == -1) {
+				//calculates the last
+				prev_last = GetPreviousPackageLast(pack);
+				if (prev_last < round_t) {
+					pack->last = round_t + pack->length;
+				}
+				else {
+					pack->last = prev_last + pack->length;
+				}
+			}
+			pack = pack->next;
+		}
+		queue = queue->next;
+	}
+
+}

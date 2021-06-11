@@ -12,6 +12,7 @@ typedef struct Package {
 	float weight;//optional
 	float last;
 	struct Package* next;
+	struct Package* prev;
 
 } Package;
 
@@ -19,8 +20,8 @@ typedef struct Package {
 /*this struct defines the queue data structure*/
 typedef struct Queue {
 	int size;//the size of queue
-	Package* head;//pointer to the first node in queue(first in priority)
-	Package* tail;//pointer to the last node in queue(last in priority)
+	Package* head;//pointer to the first package in queue
+	Package* tail;//pointer to the last package in queue
 	struct Queue* next;
 }QUEUE;
 
@@ -41,9 +42,13 @@ Package* GetPackageWithMinimumLast(QUEUE** ptr_head);
 
 void PrintQueues(QUEUE* head);
 
+//returns the sum of all active links
+int SumActiveLinksWeights(QUEUE* head);
 
-///New functions: 
-/// function that sums the weights of the active links.
-/// function that returning the last of the p(i-1)
-/// function that going over the queues and calling last calculating function. 
+//returns the 'last' of the previous package in queue
+int GetPreviousPackageLast(Package* package);
+
+//the function searchs for last==-1 in all packages, and update it.
+void UpdateLast(QUEUE* head, float round_t);
+
 #endif
