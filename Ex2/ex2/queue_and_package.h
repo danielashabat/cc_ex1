@@ -40,8 +40,9 @@ void InsertNewPackage(QUEUE ** ptr_head, Package* new_package);
 /*this function returns the package with minimum last*/
 Package* GetPackageWithMinimumLast(QUEUE* head);
 
-/*this function returns the package with minimum last,pop it from the queue and updates all the linked queues*/
-Package* PopPackageWithMinimumLast(QUEUE** ptr_head);
+/*this function gets input :pointer to head of queues, pointer to package 
+functionality:  remove the package from queus and update the head of queues*/
+void RemoveHeadPackageFromQueue(QUEUE** ptr_head, Package* package);
 
 void PrintQueues(QUEUE* head);
 

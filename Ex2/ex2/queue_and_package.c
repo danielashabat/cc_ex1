@@ -218,10 +218,9 @@ Package* GetPackageWithMinimumLast(QUEUE* head) {
 
 
 
-Package* PopPackageWithMinimumLast(QUEUE** ptr_head) {
+void RemoveHeadPackageFromQueue(QUEUE** ptr_head, Package* package) {
 	QUEUE* queue = *ptr_head;
-	QUEUE* queue_with_minimum_last = queue;
-	float minimum_last = queue_with_minimum_last->head->last;
+	Package* head_package;
 
 	if (queue == NULL) {
 		printf("ERROR: there is no packages in queues\n terminate program\n");
@@ -229,19 +228,20 @@ Package* PopPackageWithMinimumLast(QUEUE** ptr_head) {
 	}
 
 	while (queue != NULL) {
-		if (LastOfTopPackage(queue) < minimum_last) {
-			queue_with_minimum_last = queue;
-			minimum_last = LastOfTopPackage(queue);
+		head_package = queue->head;
+		if (head_package == package) {
+			break;
 		}
 		queue = queue->next;
 	}
-	Package* package_with_minimum_last = Pop(queue_with_minimum_last);
-
-	if (queue_with_minimum_last->size == 0) {// check if it was the last package in queue 
-		DestroyEmptyQueue(ptr_head, queue_with_minimum_last);
+	if (queue == NULL) {
+		printf("ERROR: package not found in any queue\n terminate program\n");
+		exit(FUNCTION_FAILED);
 	}
-
-	return package_with_minimum_last;
+	free(Pop(queue));//remove package 
+	if (queue->size == 0) {// check if it was the last package in queue 
+		DestroyEmptyQueue(ptr_head, queue);//destrou the queue and update head of queues
+	}
 
 }
 

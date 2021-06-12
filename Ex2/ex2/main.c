@@ -57,7 +57,7 @@ int main(int argc, char* argv[]) {
 				empty_q = 1;
 				//printf("queue before pop\n");
 				//PrintQueues(head);
-				PopPackageWithMinimumLast(&head);
+				//RemovePackageFromQueues(&head);
 				printf("queue after pop\n");
 				PrintQueues(head);
 			}
