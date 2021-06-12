@@ -238,8 +238,7 @@ void RemoveHeadPackageFromQueue(QUEUE** ptr_head, Package* package) {
 		printf("ERROR: package not found in any queue\n terminate program\n");
 		exit(FUNCTION_FAILED);
 	}
-	Pop(queue);//remove package 
-	free(head_package);
+	free(Pop(queue));//remove package 
 	if (queue->size == 0) {// check if it was the last package in queue 
 		DestroyEmptyQueue(ptr_head, queue);//destrou the queue and update head of queues
 	}

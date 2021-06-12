@@ -57,17 +57,17 @@ int main(int argc, char* argv[]) {
 				empty_q = 1;
 				//printf("queue before pop\n");
 				//PrintQueues(head);
-				RemovePackageFromQueues(&head);
-				printf("queue after pop\n");
-				PrintQueues(head);
+				RemoveHeadPackageFromQueue(&head, now_package);
+				//printf("queue after pop\n");
+				//PrintQueues(head);
 			}
 		}
 
 		while (1) { //inserting new packets
 			
-			if (2689 == rtime) {
-				PrintQueues(head);
-			}
+			//if (2689 == rtime) {
+			//	PrintQueues(head);
+			//}
 			new_package = CreatePackage(time, Sadd, Sport, Dadd, Dport, length, weight, -1);
 			if (time == rtime) {
 				arrive = 1;
@@ -100,8 +100,8 @@ int main(int argc, char* argv[]) {
 				round_t = round_t + (delta_t / active_links_weight_t);
 			}
 			UpdateLast(head, round_t);
-			printf("update last\n");
-			PrintQueues(head);
+			//printf("update last\n");
+			//PrintQueues(head);
 			if (empty_q == 1) {
 				now_package = GetPackageWithMinimumLast(head);
 				empty_q = 0;
