@@ -43,7 +43,7 @@ Package* GetPackageWithMinimumLast(QUEUE** ptr_head);
 void PrintQueues(QUEUE* head);
 
 //returns the sum of all active links
-int SumActiveLinksWeights(QUEUE* head);
+float SumActiveLinksWeights(QUEUE* head);
 
 //returns the 'last' of the previous package in queue
 int GetPreviousPackageLast(Package* package);

@@ -279,7 +279,7 @@ void PrintQueues(QUEUE* head) {
 	}
 }
 
-int SumActiveLinksWeights(QUEUE* head) {
+float SumActiveLinksWeights(QUEUE* head) {
 	QUEUE* queue = head;
 	float sum = 0;
 
