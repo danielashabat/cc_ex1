@@ -50,18 +50,24 @@ int main(int argc, char* argv[]) {
 	else {
 		sscanf(line, "%d %s %d %s %d %d %f", &time, Sadd, &Sport, Dadd, &Dport, &length, &weight);
 	}
-	while (1) {
-		if (last_t_arrive > 0) {
+	while (1) { // iterations of time
+		if (remaining_time > 0) { // check about the bus
 			remaining_time = remaining_time - 1;
 			if (remaining_time == 0) { //the package done
 				empty_q = 1;
-				//the packet can be removed
+				//printf("queue before pop\n");
+				//PrintQueues(head);
+				PopPackageWithMinimumLast(&head);
+				printf("queue after pop\n");
+				PrintQueues(head);
 			}
 		}
 
-		while (1) {
+		while (1) { //inserting new packets
 			
-			
+			if (2689 == rtime) {
+				PrintQueues(head);
+			}
 			new_package = CreatePackage(time, Sadd, Sport, Dadd, Dport, length, weight, -1);
 			if (time == rtime) {
 				arrive = 1;
@@ -79,11 +85,14 @@ int main(int argc, char* argv[]) {
 				}
 			}
 			else break;
+			//printf("queue after inserting packets\n");
+			//PrintQueues(head);
+			
 		}
 		if (flag_eof == 1) break;
 		if (arrive == 1) { // packets had arrived
 			/// here we are going to calculate roundt
-			delta_t = last_t_arrive - rtime;
+			delta_t = rtime - last_t_arrive;
 			if (active_links_weight_t == 0) {
 				round_t = round_t;
 			}
@@ -91,8 +100,10 @@ int main(int argc, char* argv[]) {
 				round_t = round_t + (delta_t / active_links_weight_t);
 			}
 			UpdateLast(head, round_t);
+			printf("update last\n");
+			PrintQueues(head);
 			if (empty_q == 1) {
-				now_package = GetPackageWithMinimumLast(&head);
+				now_package = GetPackageWithMinimumLast(head);
 				empty_q = 0;
 				remaining_time = now_package->length;
 				if (now_package->weight == 1) {

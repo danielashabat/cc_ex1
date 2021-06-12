@@ -38,7 +38,10 @@ Package* CreatePackage(int time, char* Sadd, int Sport, char* Dadd, int Dport, i
 void InsertNewPackage(QUEUE ** ptr_head, Package* new_package);
 
 /*this function returns the package with minimum last*/
-Package* GetPackageWithMinimumLast(QUEUE** ptr_head);
+Package* GetPackageWithMinimumLast(QUEUE* head);
+
+/*this function returns the package with minimum last,pop it from the queue and updates all the linked queues*/
+Package* PopPackageWithMinimumLast(QUEUE** ptr_head);
 
 void PrintQueues(QUEUE* head);
 

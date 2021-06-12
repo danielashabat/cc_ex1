@@ -196,8 +196,29 @@ QUEUE* SearchQueue(QUEUE* head, char* Sadd, int Sport, char* Dadd, int Dport) {
 	return NULL;//matching queue not found
 }
 
+Package* GetPackageWithMinimumLast(QUEUE* head) {
+	QUEUE* queue = head;
+	QUEUE* queue_with_minimum_last = queue;
+	float minimum_last = queue_with_minimum_last->head->last;
 
-Package* GetPackageWithMinimumLast(QUEUE** ptr_head) {
+	if (queue == NULL) {
+		printf("ERROR: there is no packages in queues\n terminate program\n");
+		exit(FUNCTION_FAILED);
+	}
+
+	while (queue != NULL) {
+		if (LastOfTopPackage(queue) < minimum_last) {
+			queue_with_minimum_last = queue;
+			minimum_last = LastOfTopPackage(queue);
+		}
+		queue = queue->next;
+	}
+	return queue_with_minimum_last->head;
+}
+
+
+
+Package* PopPackageWithMinimumLast(QUEUE** ptr_head) {
 	QUEUE* queue = *ptr_head;
 	QUEUE* queue_with_minimum_last = queue;
 	float minimum_last = queue_with_minimum_last->head->last;
