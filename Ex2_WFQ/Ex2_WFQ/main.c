@@ -1,10 +1,10 @@
 #define _CRT_SECURE_NO_DEPRECATE
 #include <stdio.h>
-#include "queue_and_package.h"
+
 
 #include <stdlib.h>
 #include <string.h>
-
+#include "queue_and_package.h"
 
 float check_for_weight(char* all_line);
 
