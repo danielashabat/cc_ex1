@@ -47,20 +47,20 @@ void DestroyEmptyQueue(QUEUE** ptr_head, QUEUE* queue);
 // Implementation -------------------------------------------------------
 
 QUEUE* InitializeQueue() {
-    QUEUE* queue = (QUEUE*)malloc(sizeof(QUEUE));
-    if (queue == NULL) {
-        return NULL;
-    }
+	QUEUE* queue = (QUEUE*)malloc(sizeof(QUEUE));
+	if (queue == NULL) {
+		return NULL;
+	}
 
-    queue->size = 0;
-    queue->head = NULL;
-    queue->tail = NULL;
+	queue->size = 0;
+	queue->head = NULL;
+	queue->tail = NULL;
 
-    return queue;
+	return queue;
 }
 
 void Push(QUEUE* queue, Package* package) {
-	
+
 	if (package == NULL)
 	{
 		printf("Fatal error: package is NULL!\n");
@@ -77,7 +77,7 @@ void Push(QUEUE* queue, Package* package) {
 		queue->tail = package;//updating the tail in queue to the new node
 		queue->size++;//increase queue's size by 1
 	}
-	
+
 }
 
 Package* CreatePackage(int time, char* Sadd, int Sport, char* Dadd, int Dport, int length, float weight, float last) {
@@ -155,7 +155,7 @@ bool Empty(QUEUE* queue) {
 	return FUNCTION_FAILED;
 }
 
-void InsertNewPackage(QUEUE ** ptr_head, Package* new_package) {
+void InsertNewPackage(QUEUE** ptr_head, Package* new_package) {
 
 	QUEUE* first_queue = *ptr_head;
 	QUEUE* match_queue = NULL;
@@ -171,23 +171,23 @@ void InsertNewPackage(QUEUE ** ptr_head, Package* new_package) {
 	}
 
 	Push(match_queue, new_package);
-	
+
 }
 
 //search queue with the same source address ,source port ,destination address,destination port
 //reruen value: if found the right queue it returns pointer to the queue, in not returns NULL
 QUEUE* SearchQueue(QUEUE* head, char* Sadd, int Sport, char* Dadd, int Dport) {
-	
+
 	QUEUE* queue = head;
 
 	while (queue != NULL) {
 		Package* package_in_queue = queue->head;
 
-		if (strcmp(package_in_queue->Dadd,Dadd)==0 \
-			&& strcmp(package_in_queue->Sadd, Sadd)==0\
+		if (strcmp(package_in_queue->Dadd, Dadd) == 0 \
+			&& strcmp(package_in_queue->Sadd, Sadd) == 0\
 			&& package_in_queue->Sport == Sport \
 			&& package_in_queue->Dport == Dport) {//check if match
-			
+
 			return queue;
 		}
 		queue = queue->next;
@@ -252,9 +252,9 @@ void DestroyEmptyQueue(QUEUE** ptr_head, QUEUE* queue) {
 	}
 
 	QUEUE* prev_queue = NULL;
-	QUEUE * cur_queue = *ptr_head;
+	QUEUE* cur_queue = *ptr_head;
 
-	while (cur_queue !=NULL){
+	while (cur_queue != NULL) {
 		if (cur_queue == queue) {
 			break;
 		}
@@ -262,7 +262,7 @@ void DestroyEmptyQueue(QUEUE** ptr_head, QUEUE* queue) {
 		cur_queue = cur_queue->next;
 	}
 
-	if (cur_queue==NULL) {
+	if (cur_queue == NULL) {
 		printf("ERROR: the queue not found in list!\n");
 		exit(FUNCTION_FAILED);
 	}
@@ -271,7 +271,7 @@ void DestroyEmptyQueue(QUEUE** ptr_head, QUEUE* queue) {
 		prev_queue->next = cur_queue->next;
 	}
 	else {
-		*ptr_head= cur_queue->next; //if the queue is the head, change head to be next queue 
+		*ptr_head = cur_queue->next; //if the queue is the head, change head to be next queue 
 	}
 
 	free(cur_queue);//free queue 
@@ -282,7 +282,7 @@ void PrintQueues(QUEUE* head) {
 	QUEUE* queue = head;
 	Package* package = NULL;
 	int i = 0;
-	if (queue ==NULL) {
+	if (queue == NULL) {
 		printf("[]\n");
 		return;
 	}
@@ -325,17 +325,17 @@ void UpdateLast(QUEUE* head, float round_t) {
 	QUEUE* queue = head;
 	Package* pack;
 	int prev_last = 0;
-	while (queue != NULL ) {
+	while (queue != NULL) {
 		pack = queue->head;
 		while (pack != NULL) {
 			if (pack->last == -1) {
 				//calculates the last
 				prev_last = GetPreviousPackageLast(pack);
 				if (prev_last < round_t) {
-					pack->last = round_t + pack->length;
+					pack->last = round_t + (pack->length / pack->weight);
 				}
 				else {
-					pack->last = prev_last + pack->length;
+					pack->last = prev_last + (pack->length / pack->weight);
 				}
 			}
 			pack = pack->next;

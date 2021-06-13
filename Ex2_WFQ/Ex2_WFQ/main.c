@@ -10,32 +10,32 @@ float check_for_weight(char* all_line);
 
 int main(int argc, char* argv[]) {
 	QUEUE* head = NULL;
-	int rtime=0; // real time
+	int rtime = 0; // real time
 	/// packet variables
 	int time;
-	char* Sadd=NULL;
+	char* Sadd = NULL;
 	int Sport;
-	char* Dadd=NULL;
+	char* Dadd = NULL;
 	int Dport;
 	int length;
 	int flag_eof = 0;
-	float weight=0;
+	float weight = 0;
 	float last;
 	int last_t_arrive = 0;
 	int arrive = 0; // 1 if arrive a packet at time rtime
-	float round_t=0;
+	float round_t = 0;
 	float active_links_weight_t = 0;
 	int delta_t = 0;
 	int empty_q = 1; //if 1 can be sent package, if 0 its occupied.
 	int remaining_time = 0; /// remaining time of the current package
 
-	Sadd = (char*)malloc(16*sizeof(char));
+	Sadd = (char*)malloc(16 * sizeof(char));
 	Dadd = (char*)malloc(16 * sizeof(char));
 	FILE* input = NULL;
 	FILE* output = NULL;
 	input = fopen(argv[1], "r");
 	output = fopen(argv[2], "w");
-	Package* new_package= (Package*)malloc(sizeof(Package));
+	Package* new_package = (Package*)malloc(sizeof(Package));
 	Package* now_package = (Package*)malloc(sizeof(Package));
 	/// reading first line from file
 	//fscanf(input, "%[^\n]", all_line);
@@ -51,23 +51,18 @@ int main(int argc, char* argv[]) {
 		sscanf(line, "%d %s %d %s %d %d %f", &time, Sadd, &Sport, Dadd, &Dport, &length, &weight);
 	}
 	while (1) { // iterations of time
-		if (remaining_time > 0) { // check about the bus
+
+		if (empty_q == 0) { //checking the bus situation, update remaning time
 			remaining_time = remaining_time - 1;
-			if (remaining_time == 0) { //the package done
+			if (remaining_time == -1) {
 				empty_q = 1;
-				//printf("queue before pop\n");
-				//PrintQueues(head);
 				RemoveHeadPackageFromQueue(&head, now_package);
-				//printf("queue after pop\n");
-				//PrintQueues(head);
 			}
 		}
 
 		while (1) { //inserting new packets
-			
-			//if (2689 == rtime) {
-			//	PrintQueues(head);
-			//}
+
+			if (flag_eof == 1) break;
 			new_package = CreatePackage(time, Sadd, Sport, Dadd, Dport, length, weight, -1);
 			if (time == rtime) {
 				arrive = 1;
@@ -85,11 +80,10 @@ int main(int argc, char* argv[]) {
 				}
 			}
 			else break;
-			//printf("queue after inserting packets\n");
-			//PrintQueues(head);
-			
+
+
 		}
-		if (flag_eof == 1) break;
+		if (flag_eof == 1 & head == NULL) break;
 		if (arrive == 1) { // packets had arrived
 			/// here we are going to calculate roundt
 			delta_t = rtime - last_t_arrive;
@@ -100,21 +94,26 @@ int main(int argc, char* argv[]) {
 				round_t = round_t + (delta_t / active_links_weight_t);
 			}
 			UpdateLast(head, round_t);
-			//printf("update last\n");
-			//PrintQueues(head);
-			if (empty_q == 1) {
-				now_package = GetPackageWithMinimumLast(head);
-				empty_q = 0;
-				remaining_time = now_package->length;
-				if (now_package->weight == 1) {
-					fprintf(output, "%d: %d %s %d %s %d %d\n", rtime, now_package->time, now_package->Sadd, now_package->Sport, now_package->Dadd, now_package->Dport, now_package->length);
-				}
-				else {
-					fprintf(output, "%d: %d %s %d %s %d %d %f\n", rtime, now_package->time, now_package->Sadd, now_package->Sport, now_package->Dadd, now_package->Dport, now_package->length, now_package->weight);
-				}
-			}
+
+
 			last_t_arrive = rtime;
 			active_links_weight_t = SumActiveLinksWeights(head);
+		}
+		if (rtime == 312351) {
+			PrintQueues(head);
+		}
+		if (empty_q == 1 & head != NULL) {
+			now_package = GetPackageWithMinimumLast(head);
+
+			empty_q = 0;
+			remaining_time = now_package->length - 1;
+			if (now_package->weight == 1) {
+				fprintf(output, "%d: %d %s %d %s %d %d\n", rtime, now_package->time, now_package->Sadd, now_package->Sport, now_package->Dadd, now_package->Dport, now_package->length);
+			}
+			else {
+				fprintf(output, "%d: %d %s %d %s %d %d %.2f\n", rtime, now_package->time, now_package->Sadd, now_package->Sport, now_package->Dadd, now_package->Dport, now_package->length, now_package->weight);
+			}
+
 		}
 		rtime++;
 		arrive = 0;
