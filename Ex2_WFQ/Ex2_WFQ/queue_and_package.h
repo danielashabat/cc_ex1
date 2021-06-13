@@ -47,7 +47,7 @@ void RemoveHeadPackageFromQueue(QUEUE** ptr_head, Package* package);
 void PrintQueues(QUEUE* head);
 
 //returns the sum of all active links
-float SumActiveLinksWeights(QUEUE* head);
+float SumActiveLinksWeights(QUEUE* head, float round_t);
 
 //returns the 'last' of the previous package in queue
 int GetPreviousPackageLast(Package* package);

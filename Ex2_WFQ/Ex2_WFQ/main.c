@@ -97,7 +97,7 @@ int main(int argc, char* argv[]) {
 
 
 			last_t_arrive = rtime;
-			active_links_weight_t = SumActiveLinksWeights(head);
+			active_links_weight_t = SumActiveLinksWeights(head, round_t);
 		}
 		if (rtime == 312351) {
 			PrintQueues(head);

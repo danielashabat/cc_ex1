@@ -300,12 +300,21 @@ void PrintQueues(QUEUE* head) {
 	}
 }
 
-float SumActiveLinksWeights(QUEUE* head) {
+float SumActiveLinksWeights(QUEUE* head, float round_t) {
 	QUEUE* queue = head;
 	float sum = 0;
+	Package* pack;
 
 	while (queue != NULL) {
-		sum += queue->head->weight;
+		pack = queue->head;
+		while (pack != NULL) {
+			if (round_t < pack->last) {
+				sum += pack->weight;
+				break;
+			}
+			pack = pack->next;
+		}
+		
 		queue = queue->next;
 	}
 	return sum;
