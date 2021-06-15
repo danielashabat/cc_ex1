@@ -353,3 +353,35 @@ void UpdateLast(QUEUE* head, float round_t) {
 	}
 
 }
+
+float GetNextDeparture(QUEUE* head, float round_t) {
+	QUEUE* queue = head;
+	Package* pack;
+	QUEUE* queue_with_minimum_last = queue;
+	float minimum_last = queue_with_minimum_last->head->last;
+
+	if (queue == NULL) {
+		printf("ERROR: there is no packages in queues\n terminate program\n");
+		exit(FUNCTION_FAILED);
+	}
+
+	while (queue != NULL) {
+		pack = queue->head;
+
+		while (pack != NULL) {
+			if (round_t < pack->last) {
+
+				break;
+			}
+			pack = pack->next;
+		}
+
+
+		if (LastOfTopPackage(queue) < minimum_last) {
+			queue_with_minimum_last = queue;
+			minimum_last = LastOfTopPackage(queue);
+		}
+		queue = queue->next;
+	}
+	return;
+}
