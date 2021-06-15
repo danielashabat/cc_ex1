@@ -355,11 +355,11 @@ void UpdateLast(QUEUE* head, float round_t) {
 
 }
 
+//this function return the virtual time of the next departure package, if there is no packages to departure it returns -1;
 float GetNextDeparture(QUEUE* head, float round_t) {
 	QUEUE* queue = head;
 	Package* pack;
-	QUEUE* queue_with_minimum_last = queue;
-	float minimum_last = queue_with_minimum_last->head->last;
+	float minimum_last = -1;
 
 	if (queue == NULL) {
 		printf("ERROR: there is no packages in queues\n terminate program\n");
@@ -370,19 +370,20 @@ float GetNextDeparture(QUEUE* head, float round_t) {
 		pack = queue->head;
 
 		while (pack != NULL) {
-			if (round_t < pack->last) {
-
+			//initialize minimun last
+			if (round_t < pack->last && minimum_last==-1) {
+				minimum_last = pack->last;
+				break;
+			}
+			//check if package is with minimum last
+			if (round_t < pack->last && pack->last< minimum_last) {
+				minimum_last = pack->last;
 				break;
 			}
 			pack = pack->next;
 		}
 
-
-		if (LastOfTopPackage(queue) < minimum_last) {
-			queue_with_minimum_last = queue;
-			minimum_last = LastOfTopPackage(queue);
-		}
 		queue = queue->next;
 	}
-	return;
+	return minimum_last;
 }

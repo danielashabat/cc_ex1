@@ -138,16 +138,19 @@ int main(int argc, char* argv[]) {
 	//Package* pack1 =  CreatePackage(0, "source", 0, "dest" , 0, 100, 1,-1);
 	//InsertNewPackage(&head, pack1);
 
-	//Package*  new_package = CreatePackage(0, "source2", 0, "dest", 0, 50, 1, -1);
+	//Package*  new_package = CreatePackage(0, "source2", 0, "dest", 0, 50, 5, -1);
 	//InsertNewPackage(&head, new_package);
 
-	//new_package = CreatePackage(0, "source2", 0, "dest", 0, 20, 1, -1);
+	//new_package = CreatePackage(0, "source2", 0, "dest", 0, 150, 2, -1);
 	//InsertNewPackage(&head, new_package);
 
 	//PrintQueues(head);
 	//UpdateLast(head, round_t);
-	//PrintQueues(head);
-	////pop all packages
+	//round_t = 50;
+	//printf("next departure is:%f\n",GetNextDeparture(head,round_t));
+	//printf("SumActiveLinksWeights is:%f\n", SumActiveLinksWeights(head,round_t));
+
+	//pop all packages
 	//new_package = GetPackageWithMinimumLast(&head);
 	//printf("pop package with minimum last : %f\n", new_package->last);
 
@@ -163,7 +166,7 @@ int main(int argc, char* argv[]) {
 	//printf("the sum of active links: %d\n", sum);
 	PrintQueues(head);
 
-	//fscanf("%d %d %d\n",  );
+
 
 }
 

@@ -55,4 +55,6 @@ int GetPreviousPackageLast(Package* package);
 //the function searchs for last==-1 in all packages, and update it.
 void UpdateLast(QUEUE* head, float round_t);
 
+float GetNextDeparture(QUEUE* head, float round_t);
+
 #endif
