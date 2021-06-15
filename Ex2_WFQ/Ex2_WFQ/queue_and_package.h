@@ -50,7 +50,7 @@ void PrintQueues(QUEUE* head);
 float SumActiveLinksWeights(QUEUE* head, float round_t);
 
 //returns the 'last' of the previous package in queue
-int GetPreviousPackageLast(Package* package);
+float GetPreviousPackageLast(Package* package);
 
 //the function searchs for last==-1 in all packages, and update it.
 void UpdateLast(QUEUE* head, float round_t);

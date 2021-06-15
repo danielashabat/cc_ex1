@@ -30,6 +30,7 @@ int main(int argc, char* argv[]) {
 	int remaining_time = 0; /// remaining time of the current package
 	float prev_round_t = 0;
 	float x = 0;
+	float next_depart=-1;
 	Sadd = (char*)malloc(16 * sizeof(char));
 	Dadd = (char*)malloc(16 * sizeof(char));
 	FILE* input = NULL;
@@ -38,7 +39,7 @@ int main(int argc, char* argv[]) {
 	output = fopen(argv[2], "w");
 	Package* new_package = (Package*)malloc(sizeof(Package));
 	Package* now_package = (Package*)malloc(sizeof(Package));
-	Package* test_package = (Package*)malloc(sizeof(Package));
+	
 	/// reading first line from file
 	//fscanf(input, "%[^\n]", all_line);
 	const size_t line_size = 100;
@@ -87,6 +88,10 @@ int main(int argc, char* argv[]) {
 		}
 		if (flag_eof == 1 & head == NULL) break;
 		if (arrive == 1) { // packets had arrived
+			if (round_t == 636) {
+				printf("round_t is 636########\n");
+			}
+
 			/// here we are going to calculate roundt
 			delta_t = rtime - last_t_arrive;
 			active_links_weight_t = SumActiveLinksWeights(head, prev_round_t);
@@ -96,16 +101,27 @@ int main(int argc, char* argv[]) {
 			else {
 				round_t = prev_round_t + (delta_t / active_links_weight_t);
 			}
-			/// checking special case 
-			test_package = GetPackageWithMinimumLast(head);
-			if (round_t > test_package->last) {
+			///// checking special case 
+			next_depart = GetNextDeparture(head, prev_round_t);
+			if ((round_t > next_depart)&& (next_depart != (float)-1)) {
 				//printf("rtime is %d\n",rtime);
-				x = (test_package->last - prev_round_t) * active_links_weight_t;
-				round_t = test_package->last + (x / SumActiveLinksWeights(head, prev_round_t + x));
+				x = (next_depart - prev_round_t) * active_links_weight_t;
+				active_links_weight_t = SumActiveLinksWeights(head, prev_round_t + x);
+				if (active_links_weight_t == 0) {
+					round_t = next_depart;
+				}
+				else {
+					round_t = next_depart + (x / SumActiveLinksWeights(head, prev_round_t + x));
+				}
+				
 
 			}
+			printf("round_t is :%f\n", round_t);
+			printf("before update:\n");
+			PrintQueues(head);
 			UpdateLast(head, round_t);
-
+			printf("after update:\n");
+			PrintQueues(head);
 
 			last_t_arrive = rtime;
 			//active_links_weight_t = SumActiveLinksWeights(head, round_t);

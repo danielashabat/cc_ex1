@@ -321,7 +321,7 @@ float SumActiveLinksWeights(QUEUE* head, float round_t) {
 	return sum;
 }
 
-int GetPreviousPackageLast(Package* package) {
+float GetPreviousPackageLast(Package* package) {
 	Package* prev_package = package->prev;
 
 	if (prev_package == NULL) {
@@ -334,7 +334,7 @@ void UpdateLast(QUEUE* head, float round_t) {
 
 	QUEUE* queue = head;
 	Package* pack;
-	int prev_last = 0;
+	float prev_last = 0;
 	while (queue != NULL) {
 		pack = queue->head;
 		while (pack != NULL) {
@@ -371,12 +371,12 @@ float GetNextDeparture(QUEUE* head, float round_t) {
 
 		while (pack != NULL) {
 			//initialize minimun last
-			if (round_t < pack->last && minimum_last==-1) {
+			if (round_t < pack->last && minimum_last==-1 && (pack->last != -1)) {
 				minimum_last = pack->last;
 				break;
 			}
 			//check if package is with minimum last
-			if (round_t < pack->last && pack->last< minimum_last) {
+			if (round_t < pack->last && pack->last< minimum_last && (pack->last != -1)) {
 				minimum_last = pack->last;
 				break;
 			}
