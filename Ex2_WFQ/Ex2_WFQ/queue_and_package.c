@@ -325,7 +325,7 @@ float GetPreviousPackageLast(Package* package) {
 	Package* prev_package = package->prev;
 
 	if (prev_package == NULL) {
-		return 0;
+		return -1;
 	}
 	return prev_package->last;
 }
@@ -341,7 +341,7 @@ void UpdateLast(QUEUE* head, float round_t) {
 			if (pack->last == -1) {
 				//calculates the last
 				prev_last = GetPreviousPackageLast(pack);
-				if (prev_last < round_t) {
+				if (prev_last < round_t || prev_last==-1) {
 					pack->last = round_t + (pack->length / pack->weight);
 				}
 				else {

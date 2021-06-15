@@ -21,11 +21,11 @@ int main(int argc, char* argv[]) {
 	int flag_eof = 0;
 	float weight = 0;
 	float last;
-	int last_t_arrive = 0;
+	float last_t_event = 0;
 	int arrive = 0; // 1 if arrive a packet at time rtime
 	float round_t = 0;
 	float active_links_weight_t = 0;
-	int delta_t = 0;
+	float delta_t = 0;
 	int empty_q = 1; //if 1 can be sent package, if 0 its occupied.
 	int remaining_time = 0; /// remaining time of the current package
 	float prev_round_t = 0;
@@ -88,46 +88,45 @@ int main(int argc, char* argv[]) {
 		}
 		if (flag_eof == 1 & head == NULL) break;
 		if (arrive == 1) { // packets had arrived
-			if (round_t == 636) {
-				printf("round_t is 636########\n");
-			}
+			int next_event_is_arrival = 0;
 
-			/// here we are going to calculate roundt
-			delta_t = rtime - last_t_arrive;
-			active_links_weight_t = SumActiveLinksWeights(head, prev_round_t);
-			if (active_links_weight_t == 0) {
-				round_t = prev_round_t;
-			}
-			else {
-				round_t = prev_round_t + (delta_t / active_links_weight_t);
-			}
-			///// checking special case 
-			next_depart = GetNextDeparture(head, prev_round_t);
-			if ((round_t > next_depart)&& (next_depart != (float)-1)) {
-				//printf("rtime is %d\n",rtime);
-				x = (next_depart - prev_round_t) * active_links_weight_t;
-				active_links_weight_t = SumActiveLinksWeights(head, prev_round_t + x);
+			while (next_event_is_arrival == 0) {
+				/// here we are going to calculate roundt
+				delta_t = rtime - last_t_event;
+				active_links_weight_t = SumActiveLinksWeights(head, prev_round_t);
 				if (active_links_weight_t == 0) {
-					round_t = next_depart;
+					round_t = prev_round_t;
 				}
 				else {
-					round_t = next_depart + (x / SumActiveLinksWeights(head, prev_round_t + x));
+					round_t = prev_round_t + (delta_t / active_links_weight_t);
 				}
-				
+				///// checking special case 
+				next_depart = GetNextDeparture(head, prev_round_t);
+				if ((round_t > next_depart) && (next_depart != (float)-1)) {
 
+					x = (next_depart - prev_round_t) * active_links_weight_t;
+					last_t_event = last_t_event + x;
+					prev_round_t = next_depart;
+					printf("-Deparute-round_t is :%f\n", prev_round_t);
+				}
+				else {
+					next_event_is_arrival = 1;
+				}
 			}
-			printf("round_t is :%f\n", round_t);
-			printf("before update:\n");
-			PrintQueues(head);
+
+			printf("-Arrival-round_t is :%f\n", round_t);
+			//printf("before update:\n");
+			//PrintQueues(head);
 			UpdateLast(head, round_t);
-			printf("after update:\n");
+
 			PrintQueues(head);
 
-			last_t_arrive = rtime;
+			last_t_event = rtime;
 			//active_links_weight_t = SumActiveLinksWeights(head, round_t);
 			prev_round_t = round_t;
 		}
 		if (rtime == 312351) {
+			printf("in r_time=312351\n");
 			PrintQueues(head);
 		}
 		if (empty_q == 1 & head != NULL) {
