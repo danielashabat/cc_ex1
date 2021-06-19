@@ -48,6 +48,7 @@ int main(int argc, char* argv[]) {
 
 	weight = check_for_weight(line);
 	if (weight == 1.0) {
+		weight = -1;
 		sscanf(line, "%d %s %d %s %d %d", &time, Sadd, &Sport, Dadd, &Dport, &length);
 	}
 	else {
@@ -59,15 +60,6 @@ int main(int argc, char* argv[]) {
 			remaining_time = remaining_time - 1;
 			if (remaining_time == -1) {
 				empty_q = 1;
-
-				//if (prev_round_t < now_package->last) {
-				//	
-				//	x = (now_package->last - prev_round_t) * SumActiveLinksWeights(head, prev_round_t);
-				//	last_t_event = last_t_event + x;
-				//	prev_round_t = now_package->last;
-				//	printf("update round_t to:%f\n", prev_round_t);
-				//}
-				RemoveHeadPackageFromQueue(&head, now_package);
 
 			}
 		}
@@ -133,7 +125,7 @@ int main(int argc, char* argv[]) {
 
 			UpdateLast(head, round_t);
 
-			PrintQueues(head);
+			//PrintQueues(head);
 
 			last_t_event = rtime;
 			//active_links_weight_t = SumActiveLinksWeights(head, round_t);

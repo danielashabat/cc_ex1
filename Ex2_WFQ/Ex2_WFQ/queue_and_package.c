@@ -21,8 +21,7 @@ QUEUE* InitializeQueue();
 
 /*this function return the 'last' of the first package in queue*/
 /*input: pointer to queue*/
-float LastOfTopPackage(QUEUE* queue);
-
+Package* LastOfTopPackage(QUEUE* queue);
 /*this function push a new package the the end of queue*/
 void Push(QUEUE* queue,//pointer to queue
 	Package* package);// the new package that will be insert to the end of queue
@@ -101,6 +100,7 @@ Package* CreatePackage(int time, char* Sadd, int Sport, char* Dadd, int Dport, i
 	package->weight = weight;
 	package->last = last;
 	package->print_weight = 0;
+	package->ignore = false;
 
 	strcpy(package->Sadd, Sadd);
 	strcpy(package->Dadd, Dadd);
@@ -110,13 +110,22 @@ Package* CreatePackage(int time, char* Sadd, int Sport, char* Dadd, int Dport, i
 	return package;
 }
 
-float LastOfTopPackage(QUEUE* queue) {
+Package* LastOfTopPackage(QUEUE* queue) {
 	if (Empty(queue)) {
 		printf("ERROR: Top function failed because queue is empty\n");
 		exit(FUNCTION_FAILED);
 	}
-	//if not empty
-	return (queue->head)->last;
+	Package* pack = queue->head;
+	while (pack!=NULL) {
+		if (pack->ignore == false) {
+			return pack;
+		}
+		pack = pack->next;
+	}
+
+	return NULL;//not found
+
+	
 }
 
 void DestroyQueue(QUEUE* ptr_queue, QUEUE** double_ptr_queue) {
@@ -216,6 +225,7 @@ QUEUE* SearchQueue(QUEUE* head, char* Sadd, int Sport, char* Dadd, int Dport) {
 Package* GetPackageWithMinimumLast(QUEUE* head) {
 	QUEUE* queue = head;
 	Package* pack_with_minimum_last = NULL;
+	Package* pack = NULL;
 	float minimum_last = 0xFFFFFFF;
 	float last_of_top_package;
 
@@ -225,15 +235,20 @@ Package* GetPackageWithMinimumLast(QUEUE* head) {
 	}
 
 	while (queue != NULL) {
-		if (queue->size != 0) {
-			last_of_top_package = LastOfTopPackage(queue);
-
-			if (last_of_top_package <= minimum_last) {
-				pack_with_minimum_last = queue->head;
-				minimum_last = last_of_top_package;
+		
+			pack = LastOfTopPackage(queue);
+			if (pack != NULL) {
+				last_of_top_package = pack->last;
+				if (last_of_top_package <= minimum_last) {
+					pack_with_minimum_last = pack;
+					minimum_last = last_of_top_package;
+				}
 			}
-		}
+		
 		queue = queue->next;
+	}
+	if (pack_with_minimum_last != NULL) {
+		pack_with_minimum_last->ignore = true;
 	}
 	return pack_with_minimum_last;
 }

@@ -1,6 +1,7 @@
 #ifndef	QUEUE_AND_PACKAGE_H
 #define	QUEUE_AND_PACKAGE_H
 
+#include <stdbool.h>
 
 typedef struct Package {
 	int time;
@@ -12,6 +13,7 @@ typedef struct Package {
 	float weight;//optional
 	float last;
 	int  print_weight;
+	bool ignore;
 	struct Package* next;
 	struct Package* prev;
 
