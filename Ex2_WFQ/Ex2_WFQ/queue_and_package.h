@@ -50,7 +50,7 @@ Package* GetPackageWithMinimumLast(QUEUE* head);
 
 /*this function gets input :pointer to head of queues, pointer to package
 functionality:  remove the package from queus and update the head of queues*/
-void RemoveHeadPackageFromQueue(QUEUE** ptr_head, Package* package);
+void RemovPackageFromQueue(QUEUE * head, Package* package);
 
 void PrintQueues(QUEUE* head);
 
@@ -64,5 +64,7 @@ float GetPreviousPackageLast(Package* package);
 void UpdateLast(QUEUE* head, float round_t);
 
 float GetNextDeparture(QUEUE* head, float round_t);
+
+bool AllEmpty(QUEUE* head);
 
 #endif

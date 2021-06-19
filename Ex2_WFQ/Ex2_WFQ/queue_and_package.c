@@ -112,8 +112,7 @@ Package* CreatePackage(int time, char* Sadd, int Sport, char* Dadd, int Dport, i
 
 Package* LastOfTopPackage(QUEUE* queue) {
 	if (Empty(queue)) {
-		printf("ERROR: Top function failed because queue is empty\n");
-		exit(FUNCTION_FAILED);
+		return NULL;
 	}
 	Package* pack = queue->head;
 	while (pack!=NULL) {
@@ -143,6 +142,8 @@ void DestroyQueue(QUEUE* ptr_queue, QUEUE** double_ptr_queue) {
 	*double_ptr_queue = NULL; //setting queue pointer to NULL 
 }
 
+
+
 Package* Pop(QUEUE* queue) {
 	if (Empty(queue)) {
 		printf("ERROR: Pop function failed because queue is empty\n");
@@ -170,6 +171,25 @@ bool Empty(QUEUE* queue) {
 	}
 	printf("ERROR:queue pointer is not valid!\n");
 	return FUNCTION_FAILED;
+}
+
+bool AllEmpty(QUEUE *head) {
+	QUEUE* queue = head;
+	Package* pack = queue->head;
+	while (queue != NULL) {
+
+		while (pack != NULL) {
+			if (pack->ignore==false) {
+				printf("there is non-empty queue!\n");
+				return false;
+			}
+			pack = pack->next;
+		}
+
+		queue = queue->next;
+	}
+	printf("all queues are empty!\n");
+	return true;
 }
 
 void InsertNewPackage(QUEUE** ptr_head, Package* new_package) {
@@ -255,32 +275,32 @@ Package* GetPackageWithMinimumLast(QUEUE* head) {
 
 
 
-void RemoveHeadPackageFromQueue(QUEUE** ptr_head, Package* package) {
-	QUEUE* queue = *ptr_head;
-	Package* head_package;
+void RemovPackageFromQueue(QUEUE * head, Package* package) {
+	QUEUE* queue = head;
+	Package* pack;
+	QUEUE*  match_queue=NULL;
 
 	if (queue == NULL) {
 		printf("ERROR: there is no packages in queues\n terminate program\n");
 		exit(FUNCTION_FAILED);
 	}
 
-	while (queue != NULL) {
-		head_package = queue->head;
-		if (head_package == package) {
-			break;
+	while (queue != NULL&& match_queue ==NULL) {
+		pack = queue->head;
+		while (pack != NULL) {
+			if (pack == package) {
+				match_queue = queue;
+				break;
+			}
+			pack = pack->next;
 		}
 		queue = queue->next;
 	}
-	if (queue == NULL) {
+	if (match_queue == NULL) {
 		printf("ERROR: package not found in any queue\n terminate program\n");
 		exit(FUNCTION_FAILED);
 	}
-	free(Pop(queue));//remove package 
-	//if (queue->size == 0) {// check if it was the last package in queue 
-
-	//	DestroyEmptyQueue(ptr_head, queue);//destrou the queue and update head of queues
-	//}
-
+	match_queue->size--;//decrease size of queue
 }
 
 void DestroyEmptyQueue(QUEUE** ptr_head, QUEUE* queue) {

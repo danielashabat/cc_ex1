@@ -60,7 +60,6 @@ int main(int argc, char* argv[]) {
 			remaining_time = remaining_time - 1;
 			if (remaining_time == -1) {
 				empty_q = 1;
-
 			}
 		}
 
@@ -88,7 +87,7 @@ int main(int argc, char* argv[]) {
 
 
 		}
-		if (flag_eof == 1 & head == NULL) break;
+		
 		if (arrive == 1) { // packets had arrived
 			int next_event_is_arrival = 0;
 
@@ -109,32 +108,18 @@ int main(int argc, char* argv[]) {
 					x = (next_depart - prev_round_t) * active_links_weight_t;
 					last_t_event = last_t_event + x;
 					prev_round_t = next_depart;
-					printf("-Deparute-round_t is :%f\n", prev_round_t);
 				}
 				else {
 					next_event_is_arrival = 1;
 				}
 			}
 
-			printf("-Arrival-round_t is :%f\n", round_t);
-			if (round_t == 266702.718750) {
-				printf("give up\n");
-			}
-			//printf("before update:\n");
-			//PrintQueues(head);
-
 			UpdateLast(head, round_t);
 
-			//PrintQueues(head);
-
 			last_t_event = rtime;
-			//active_links_weight_t = SumActiveLinksWeights(head, round_t);
 			prev_round_t = round_t;
 		}
-		if (rtime == 45754) {
-			printf("in r_time=45754 \n");
-			PrintQueues(head);
-		}
+
 		if (empty_q == 1 && head != NULL) {
 			now_package = GetPackageWithMinimumLast(head);
 			if (now_package != NULL) {
@@ -148,44 +133,18 @@ int main(int argc, char* argv[]) {
 				}
 			}
 
+
 		}
+
+		
+		if (flag_eof == 1 && AllEmpty(head) && empty_q == 1) break;//check if to exit program
 		rtime++;
 		arrive = 0;
 	}
 
-	//sorry Mor, commented all your work...
 
-
-
-	//Package* pack1 =  CreatePackage(0, "source", 0, "dest" , 0, 100, 2,-1);
-	//InsertNewPackage(&head, pack1);
-
-	//Package*  new_package = CreatePackage(0, "source2", 0, "dest", 0, 50, 5, -1);
-	//InsertNewPackage(&head, new_package);
-
-	//new_package = CreatePackage(0, "source2", 0, "dest", 0, 150, 2, -1);
-	//InsertNewPackage(&head, new_package);
-
-	//
-	//UpdateLast(head, round_t);
-	//PrintQueues(head);
-	//round_t = 50;
-	//printf("next departure is:%f\n",GetNextDeparture(head,round_t));
-	//printf("SumActiveLinksWeights is:%f\n", SumActiveLinksWeights(head,round_t));
-
-	//RemoveHeadPackageFromQueue(&head, pack1);
-	//PrintQueues(head);
-	//pack1 = CreatePackage(0, "source", 0, "dest", 0, 100, -1, -1);
-	//InsertNewPackage(&head, pack1);
-	//UpdateLast(head, round_t);
-	//PrintQueues(head);
-
-	//pack1 = CreatePackage(0, "source", 0, "dest", 0, 100, 5, -1);
-	//InsertNewPackage(&head, pack1);
-	//UpdateLast(head, round_t);
-	//PrintQueues(head);
-
-
+	PrintQueues(head);
+	// print last package
 
 }
 
