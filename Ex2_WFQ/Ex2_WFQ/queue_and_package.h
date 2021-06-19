@@ -11,7 +11,7 @@ typedef struct Package {
 	int length;
 	float weight;//optional
 	float last;
-	float round_t;
+	int  print_weight;
 	struct Package* next;
 	struct Package* prev;
 
@@ -23,6 +23,11 @@ typedef struct Queue {
 	int size;//the size of queue
 	Package* head;//pointer to the first package in queue
 	Package* tail;//pointer to the last package in queue
+	char Sadd[20];
+	int Sport;
+	char Dadd[20];
+	int Dport;
+	float weight;//optional
 	struct Queue* next;
 }QUEUE;
 

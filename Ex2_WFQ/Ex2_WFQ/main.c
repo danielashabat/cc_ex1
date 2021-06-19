@@ -60,13 +60,13 @@ int main(int argc, char* argv[]) {
 			if (remaining_time == -1) {
 				empty_q = 1;
 
-				if (prev_round_t < now_package->last) {
-					
-					x = (now_package->last - prev_round_t) * SumActiveLinksWeights(head, prev_round_t);
-					last_t_event = last_t_event + x;
-					prev_round_t = now_package->last;
-					printf("updade round_t to:%f", prev_round_t);
-				}
+				//if (prev_round_t < now_package->last) {
+				//	
+				//	x = (now_package->last - prev_round_t) * SumActiveLinksWeights(head, prev_round_t);
+				//	last_t_event = last_t_event + x;
+				//	prev_round_t = now_package->last;
+				//	printf("update round_t to:%f\n", prev_round_t);
+				//}
 				RemoveHeadPackageFromQueue(&head, now_package);
 
 			}
@@ -85,6 +85,7 @@ int main(int argc, char* argv[]) {
 				}
 				weight = check_for_weight(line);
 				if (weight == 1.0) {
+					weight = -1;
 					sscanf(line, "%d %s %d %s %d %d", &time, Sadd, &Sport, Dadd, &Dport, &length);
 				}
 				else {
@@ -124,6 +125,9 @@ int main(int argc, char* argv[]) {
 			}
 
 			printf("-Arrival-round_t is :%f\n", round_t);
+			if (round_t == 266702.718750) {
+				printf("give up\n");
+			}
 			//printf("before update:\n");
 			//PrintQueues(head);
 
@@ -135,20 +139,21 @@ int main(int argc, char* argv[]) {
 			//active_links_weight_t = SumActiveLinksWeights(head, round_t);
 			prev_round_t = round_t;
 		}
-		if (rtime == 42258) {
-			printf("in r_time=42258    \n");
+		if (rtime == 45754) {
+			printf("in r_time=45754 \n");
 			PrintQueues(head);
 		}
 		if (empty_q == 1 && head != NULL) {
 			now_package = GetPackageWithMinimumLast(head);
-
-			empty_q = 0;
-			remaining_time = now_package->length - 1;
-			if (now_package->weight == 1) {
-				fprintf(output, "%d: %d %s %d %s %d %d %f %f\n", rtime, now_package->time, now_package->Sadd, now_package->Sport, now_package->Dadd, now_package->Dport, now_package->length,now_package->round_t,now_package->last);
-			}
-			else {
-				fprintf(output, "%d: %d %s %d %s %d %d %.2f %f %f\n", rtime, now_package->time, now_package->Sadd, now_package->Sport, now_package->Dadd, now_package->Dport, now_package->length, now_package->weight, now_package->round_t, now_package->last);
+			if (now_package != NULL) {
+				empty_q = 0;
+				remaining_time = now_package->length - 1;
+				if (now_package->print_weight == 0) {
+					fprintf(output, "%d: %d %s %d %s %d %d\n", rtime, now_package->time, now_package->Sadd, now_package->Sport, now_package->Dadd, now_package->Dport, now_package->length);
+				}
+				else {
+					fprintf(output, "%d: %d %s %d %s %d %d %.2f\n", rtime, now_package->time, now_package->Sadd, now_package->Sport, now_package->Dadd, now_package->Dport, now_package->length, now_package->weight);
+				}
 			}
 
 		}
@@ -160,7 +165,7 @@ int main(int argc, char* argv[]) {
 
 
 
-	//Package* pack1 =  CreatePackage(0, "source", 0, "dest" , 0, 100, 1,-1);
+	//Package* pack1 =  CreatePackage(0, "source", 0, "dest" , 0, 100, 2,-1);
 	//InsertNewPackage(&head, pack1);
 
 	//Package*  new_package = CreatePackage(0, "source2", 0, "dest", 0, 50, 5, -1);
@@ -169,27 +174,24 @@ int main(int argc, char* argv[]) {
 	//new_package = CreatePackage(0, "source2", 0, "dest", 0, 150, 2, -1);
 	//InsertNewPackage(&head, new_package);
 
-	//PrintQueues(head);
+	//
 	//UpdateLast(head, round_t);
+	//PrintQueues(head);
 	//round_t = 50;
 	//printf("next departure is:%f\n",GetNextDeparture(head,round_t));
 	//printf("SumActiveLinksWeights is:%f\n", SumActiveLinksWeights(head,round_t));
 
-	//pop all packages
-	//new_package = GetPackageWithMinimumLast(&head);
-	//printf("pop package with minimum last : %f\n", new_package->last);
-
-	//new_package = GetPackageWithMinimumLast(&head);
-	//printf("pop package with minimum last : %f\n", new_package->last);
-	//int sum = SumActiveLinksWeights(head);
-	//printf("the sum of active links: %d\n", sum);
+	//RemoveHeadPackageFromQueue(&head, pack1);
+	//PrintQueues(head);
+	//pack1 = CreatePackage(0, "source", 0, "dest", 0, 100, -1, -1);
+	//InsertNewPackage(&head, pack1);
+	//UpdateLast(head, round_t);
 	//PrintQueues(head);
 
-	//new_package = GetPackageWithMinimumLast(&head);
-	//printf("pop package with minimum last : %f\n", new_package->last);
-	//sum = SumActiveLinksWeights(head);
-	//printf("the sum of active links: %d\n", sum);
-	PrintQueues(head);
+	//pack1 = CreatePackage(0, "source", 0, "dest", 0, 100, 5, -1);
+	//InsertNewPackage(&head, pack1);
+	//UpdateLast(head, round_t);
+	//PrintQueues(head);
 
 
 

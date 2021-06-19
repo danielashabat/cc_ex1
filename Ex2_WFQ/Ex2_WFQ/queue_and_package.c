@@ -56,6 +56,8 @@ QUEUE* InitializeQueue() {
 	queue->size = 0;
 	queue->head = NULL;
 	queue->tail = NULL;
+	queue->next = NULL;
+	queue->weight = 1;
 
 	return queue;
 }
@@ -71,6 +73,10 @@ void Push(QUEUE* queue, Package* package) {
 		queue->head = package;//the first node is head and tail
 		queue->tail = package;
 		queue->size++;//increase queue's size by 1
+		strcpy(queue->Dadd,package->Dadd);
+		strcpy(queue->Sadd,package->Sadd);
+		queue->Dport = package->Dport;
+		queue->Sport = package->Sport;
 	}
 	else {//if queue is not empty
 		package->prev = queue->tail;
@@ -94,6 +100,7 @@ Package* CreatePackage(int time, char* Sadd, int Sport, char* Dadd, int Dport, i
 	package->length = length;
 	package->weight = weight;
 	package->last = last;
+	package->print_weight = 0;
 
 	strcpy(package->Sadd, Sadd);
 	strcpy(package->Dadd, Dadd);
@@ -163,7 +170,6 @@ void InsertNewPackage(QUEUE** ptr_head, Package* new_package) {
 
 	if (first_queue != NULL) {
 		match_queue = SearchQueue(first_queue, new_package->Sadd, new_package->Sport, new_package->Dadd, new_package->Dport);
-		
 	}
 
 	if (match_queue == NULL) { //if a matching queue is not found, need to create new one 
@@ -171,10 +177,17 @@ void InsertNewPackage(QUEUE** ptr_head, Package* new_package) {
 		*ptr_head = match_queue; //update head to be the new queue
 		match_queue->next = first_queue;
 	}
-	//update weight
-	
 
 	Push(match_queue, new_package);
+	//update weight
+	if (new_package->weight != -1) {//if there is special weight. update queue's weight
+		match_queue->weight = new_package->weight;
+		new_package->print_weight = 1;
+	}
+	else {
+		new_package->weight = match_queue->weight; //if not take the queue's weight for package
+	}
+	
 
 }
 
@@ -185,12 +198,12 @@ QUEUE* SearchQueue(QUEUE* head, char* Sadd, int Sport, char* Dadd, int Dport) {
 	QUEUE* queue = head;
 
 	while (queue != NULL) {
-		Package* package_in_queue = queue->head;
+		
 
-		if (strcmp(package_in_queue->Dadd, Dadd) == 0 \
-			&& strcmp(package_in_queue->Sadd, Sadd) == 0\
-			&& package_in_queue->Sport == Sport \
-			&& package_in_queue->Dport == Dport) {//check if match
+		if (strcmp(queue->Dadd, Dadd) == 0 \
+			&& strcmp(queue->Sadd, Sadd) == 0\
+			&& queue->Sport == Sport \
+			&& queue->Dport == Dport) {//check if match
 
 			return queue;
 		}
@@ -202,8 +215,9 @@ QUEUE* SearchQueue(QUEUE* head, char* Sadd, int Sport, char* Dadd, int Dport) {
 
 Package* GetPackageWithMinimumLast(QUEUE* head) {
 	QUEUE* queue = head;
-	QUEUE* queue_with_minimum_last = queue;
-	float minimum_last = queue_with_minimum_last->head->last;
+	Package* pack_with_minimum_last = NULL;
+	float minimum_last = 0xFFFFFFF;
+	float last_of_top_package;
 
 	if (queue == NULL) {
 		printf("ERROR: there is no packages in queues\n terminate program\n");
@@ -211,13 +225,17 @@ Package* GetPackageWithMinimumLast(QUEUE* head) {
 	}
 
 	while (queue != NULL) {
-		if (LastOfTopPackage(queue) <= minimum_last) {
-			queue_with_minimum_last = queue;
-			minimum_last = LastOfTopPackage(queue);
+		if (queue->size != 0) {
+			last_of_top_package = LastOfTopPackage(queue);
+
+			if (last_of_top_package <= minimum_last) {
+				pack_with_minimum_last = queue->head;
+				minimum_last = last_of_top_package;
+			}
 		}
 		queue = queue->next;
 	}
-	return queue_with_minimum_last->head;
+	return pack_with_minimum_last;
 }
 
 
@@ -243,9 +261,10 @@ void RemoveHeadPackageFromQueue(QUEUE** ptr_head, Package* package) {
 		exit(FUNCTION_FAILED);
 	}
 	free(Pop(queue));//remove package 
-	if (queue->size == 0) {// check if it was the last package in queue 
-		DestroyEmptyQueue(ptr_head, queue);//destrou the queue and update head of queues
-	}
+	//if (queue->size == 0) {// check if it was the last package in queue 
+
+	//	DestroyEmptyQueue(ptr_head, queue);//destrou the queue and update head of queues
+	//}
 
 }
 
@@ -292,7 +311,7 @@ void PrintQueues(QUEUE* head) {
 	}
 
 	while (queue != NULL) {
-		printf("queue %d :  ", i);
+		printf("queue %d [weight: %.2f] :  ", i, queue->weight);
 		i++;
 		package = queue->head;
 		for (int k = 0; k < queue->size; k++) {
@@ -350,7 +369,6 @@ void UpdateLast(QUEUE* head, float round_t) {
 				else {
 					pack->last = prev_last + (pack->length / pack->weight);
 				}
-				pack->round_t = round_t;
 			}
 			pack = pack->next;
 		}
