@@ -59,7 +59,16 @@ int main(int argc, char* argv[]) {
 			remaining_time = remaining_time - 1;
 			if (remaining_time == -1) {
 				empty_q = 1;
+
+				if (prev_round_t < now_package->last) {
+					
+					x = (now_package->last - prev_round_t) * SumActiveLinksWeights(head, prev_round_t);
+					last_t_event = last_t_event + x;
+					prev_round_t = now_package->last;
+					printf("updade round_t to:%f", prev_round_t);
+				}
 				RemoveHeadPackageFromQueue(&head, now_package);
+
 			}
 		}
 
@@ -117,6 +126,7 @@ int main(int argc, char* argv[]) {
 			printf("-Arrival-round_t is :%f\n", round_t);
 			//printf("before update:\n");
 			//PrintQueues(head);
+
 			UpdateLast(head, round_t);
 
 			PrintQueues(head);
@@ -125,20 +135,20 @@ int main(int argc, char* argv[]) {
 			//active_links_weight_t = SumActiveLinksWeights(head, round_t);
 			prev_round_t = round_t;
 		}
-		if (rtime == 312351) {
-			printf("in r_time=312351\n");
+		if (rtime == 42258) {
+			printf("in r_time=42258    \n");
 			PrintQueues(head);
 		}
-		if (empty_q == 1 & head != NULL) {
+		if (empty_q == 1 && head != NULL) {
 			now_package = GetPackageWithMinimumLast(head);
 
 			empty_q = 0;
 			remaining_time = now_package->length - 1;
 			if (now_package->weight == 1) {
-				fprintf(output, "%d: %d %s %d %s %d %d\n", rtime, now_package->time, now_package->Sadd, now_package->Sport, now_package->Dadd, now_package->Dport, now_package->length);
+				fprintf(output, "%d: %d %s %d %s %d %d %f %f\n", rtime, now_package->time, now_package->Sadd, now_package->Sport, now_package->Dadd, now_package->Dport, now_package->length,now_package->round_t,now_package->last);
 			}
 			else {
-				fprintf(output, "%d: %d %s %d %s %d %d %.2f\n", rtime, now_package->time, now_package->Sadd, now_package->Sport, now_package->Dadd, now_package->Dport, now_package->length, now_package->weight);
+				fprintf(output, "%d: %d %s %d %s %d %d %.2f %f %f\n", rtime, now_package->time, now_package->Sadd, now_package->Sport, now_package->Dadd, now_package->Dport, now_package->length, now_package->weight, now_package->round_t, now_package->last);
 			}
 
 		}

@@ -163,6 +163,7 @@ void InsertNewPackage(QUEUE** ptr_head, Package* new_package) {
 
 	if (first_queue != NULL) {
 		match_queue = SearchQueue(first_queue, new_package->Sadd, new_package->Sport, new_package->Dadd, new_package->Dport);
+		
 	}
 
 	if (match_queue == NULL) { //if a matching queue is not found, need to create new one 
@@ -170,6 +171,8 @@ void InsertNewPackage(QUEUE** ptr_head, Package* new_package) {
 		*ptr_head = match_queue; //update head to be the new queue
 		match_queue->next = first_queue;
 	}
+	//update weight
+	
 
 	Push(match_queue, new_package);
 
@@ -208,7 +211,7 @@ Package* GetPackageWithMinimumLast(QUEUE* head) {
 	}
 
 	while (queue != NULL) {
-		if (LastOfTopPackage(queue) < minimum_last) {
+		if (LastOfTopPackage(queue) <= minimum_last) {
 			queue_with_minimum_last = queue;
 			minimum_last = LastOfTopPackage(queue);
 		}
@@ -310,7 +313,7 @@ float SumActiveLinksWeights(QUEUE* head, float round_t) {
 		pack = queue->head;
 		while (pack != NULL) {
 			if (round_t < pack->last) {
-				sum += pack->weight;
+				sum = sum + pack->weight;
 				break;
 			}
 			pack = pack->next;
@@ -347,6 +350,7 @@ void UpdateLast(QUEUE* head, float round_t) {
 				else {
 					pack->last = prev_last + (pack->length / pack->weight);
 				}
+				pack->round_t = round_t;
 			}
 			pack = pack->next;
 		}
@@ -376,7 +380,7 @@ float GetNextDeparture(QUEUE* head, float round_t) {
 				break;
 			}
 			//check if package is with minimum last
-			if (round_t < pack->last && pack->last< minimum_last && (pack->last != -1)) {
+			if (round_t < pack->last && pack->last<= minimum_last && (pack->last != -1)) {
 				minimum_last = pack->last;
 				break;
 			}

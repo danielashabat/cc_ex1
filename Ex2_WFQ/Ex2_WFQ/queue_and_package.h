@@ -11,6 +11,7 @@ typedef struct Package {
 	int length;
 	float weight;//optional
 	float last;
+	float round_t;
 	struct Package* next;
 	struct Package* prev;
 
