@@ -15,20 +15,16 @@ void PrintOutput(Package* now_package, FILE* output, int rtime);
 void extract_arguments(char* line, int* time, char* Sadd, int* Sport, char* Dadd, int* Dport, int* length, float* weight);
 Package* read_and_insert_package(QUEUE** ptr_head, Package* new_package, int* flag_eof);
 float UpdateRound(QUEUE* head, float prev_round_t, int rtime, float last_t_event);
+void handle_arrival_event(QUEUE* head, int rtime);
 
 int main() {
 	QUEUE* head = NULL;
 	int rtime = 0; // real time
 	int flag_eof = 0;
-	float last_t_event = 0;
 	int arrive = 0; // 1 if arrive a packet at time rtime
-	float round_t = 0;
 	int empty_q = 1; //if 1 can be sent package, if 0 its occupied.
 	int remaining_time = 0; /// remaining time of the current package
-	float prev_round_t = 0;
-	float x = 0;
-	float next_depart=-1;
-	bool next_event_is_arrival = false;
+
 	FILE* input = stdin;
 	FILE* output = stdout;
 	
@@ -37,7 +33,7 @@ int main() {
 	
 	//insert first package
 	new_package = read_and_insert_package(&head, new_package, &flag_eof);
-	while (1) { // iterations of time
+	do { // iterations of time
 
 		if (empty_q == 0) { //checking the bus situation, update remaning time
 			remaining_time = remaining_time - 1;
@@ -51,26 +47,8 @@ int main() {
 		}
 		
 		if (arrive == 1) { // packets had arrived
-			 next_event_is_arrival = false;
-
-			while (next_event_is_arrival == false) {
-				round_t = UpdateRound(head, prev_round_t, rtime, last_t_event);
-
-				// checking special case - if there is a package that ends before this one arrived - in GPS. 
-				next_depart = GetNextDeparture(head, prev_round_t);
-				if ((round_t > next_depart) && (next_depart != (float)-1)) {
-
-					x = (next_depart - prev_round_t) * SumActiveLinksWeights(head, prev_round_t);
-					last_t_event = last_t_event + x;
-					prev_round_t = next_depart;
-				}
-				else {
-					next_event_is_arrival = true;
-				}
-			}
-			UpdateLast(head, round_t);
-			last_t_event = rtime;
-			prev_round_t = round_t;
+			handle_arrival_event(head, rtime);
+			arrive = 0;
 		}
 
 		if (empty_q == 1 && head != NULL) { // sending a new package to the bus
@@ -82,10 +60,9 @@ int main() {
 			}
 		}
 
-		if (flag_eof == 1 && AllEmpty(head) && empty_q == 1) break;//check if to exit program
 		rtime++;
-		arrive = 0;
-	}
+		
+	} while (flag_eof == 0|| !AllEmpty(head) || empty_q==0);
 
 	ReleaseAll(head,&head);
 	
@@ -157,4 +134,33 @@ float UpdateRound(QUEUE* head,float prev_round_t, int rtime, float last_t_event)
 	else {
 		return prev_round_t + (delta_t / active_links_weight_t);
 	}
+}
+
+
+void handle_arrival_event(QUEUE* head,int rtime) {
+	bool next_event_is_arrival = false;
+	static float prev_round_t = 0;
+	static float last_t_event = 0;
+	static float round_t = 0;
+	float next_depart = -1;
+	float x = 0;
+
+	while (next_event_is_arrival == false) {
+		round_t = UpdateRound(head, prev_round_t, rtime, last_t_event);
+
+		// checking special case - if there is a package that ends before this one arrived - in GPS. 
+		next_depart = GetNextDeparture(head, prev_round_t);
+		if ((round_t > next_depart) && (next_depart != (float)-1)) {
+
+			x = (next_depart - prev_round_t) * SumActiveLinksWeights(head, prev_round_t);
+			last_t_event = last_t_event + x;
+			prev_round_t = next_depart;
+		}
+		else {
+			next_event_is_arrival = true;
+		}
+	}
+	UpdateLast(head, round_t);
+	last_t_event = rtime;
+	prev_round_t = round_t;
 }
