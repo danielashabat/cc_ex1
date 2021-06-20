@@ -67,4 +67,7 @@ float GetNextDeparture(QUEUE* head, float round_t);
 
 bool AllEmpty(QUEUE* head);
 
+//release all packages and all queues
+void ReleaseAll(QUEUE* ptr_queue, QUEUE** double_ptr_queue);
+
 #endif

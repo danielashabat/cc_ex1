@@ -6,16 +6,20 @@
 #include <string.h>
 #include "queue_and_package.h"
 
+#define ADDRESS_LEN 16
+#define LINE_SIZE 100
+
 float check_for_weight(char* all_line);
+
 
 int main(int argc, char* argv[]) {
 	QUEUE* head = NULL;
 	int rtime = 0; // real time
 	/// packet variables
 	int time;
-	char* Sadd = NULL;
+	char Sadd[ADDRESS_LEN];
 	int Sport;
-	char* Dadd = NULL;
+	char Dadd[ADDRESS_LEN];
 	int Dport;
 	int length;
 	int flag_eof = 0;
@@ -31,20 +35,19 @@ int main(int argc, char* argv[]) {
 	float prev_round_t = 0;
 	float x = 0;
 	float next_depart=-1;
-	Sadd = (char*)malloc(16 * sizeof(char));
-	Dadd = (char*)malloc(16 * sizeof(char));
+
 	FILE* input = NULL;
 	FILE* output = NULL;
 	input = fopen(argv[1], "r");
 	output = fopen(argv[2], "w");
-	Package* new_package = (Package*)malloc(sizeof(Package));
-	Package* now_package = (Package*)malloc(sizeof(Package));
+	Package new_package_obj;
+	Package now_package_obj;
+	Package* new_package = &new_package_obj;
+	Package* now_package = &now_package_obj;
 	
-	/// reading first line from file
-	//fscanf(input, "%[^\n]", all_line);
-	const size_t line_size = 100;
-	char* line = malloc(line_size);
-	fgets(line, line_size, input); // return NULL if empty 
+
+	char line[LINE_SIZE];
+	fgets(line, LINE_SIZE, input); // return NULL if empty 
 
 	weight = check_for_weight(line);
 	if (weight == 1.0) {
@@ -70,7 +73,7 @@ int main(int argc, char* argv[]) {
 			if (time == rtime) {
 				arrive = 1;
 				InsertNewPackage(&head, new_package);
-				if (fgets(line, line_size, input) == NULL) {
+				if (fgets(line, LINE_SIZE, input) == NULL) {
 					flag_eof = 1;
 					break;
 				}
@@ -142,9 +145,9 @@ int main(int argc, char* argv[]) {
 		arrive = 0;
 	}
 
-
-	PrintQueues(head);
-	// print last package
+	ReleaseAll(head,&head);
+	printf("program succesfully finished\n");
+	
 
 }
 

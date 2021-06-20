@@ -143,6 +143,16 @@ void DestroyQueue(QUEUE* ptr_queue, QUEUE** double_ptr_queue) {
 }
 
 
+void ReleaseAll(QUEUE* ptr_queue, QUEUE** double_ptr_queue) {
+	QUEUE* queue = ptr_queue;
+	QUEUE* next_queue = NULL;
+	while (queue != NULL) {
+		next_queue = queue->next;
+		DestroyQueue(queue, &queue);
+		queue = next_queue;
+	}
+}
+
 
 Package* Pop(QUEUE* queue) {
 	if (Empty(queue)) {
@@ -180,7 +190,7 @@ bool AllEmpty(QUEUE *head) {
 
 		while (pack != NULL) {
 			if (pack->ignore==false) {
-				printf("there is non-empty queue!\n");
+				
 				return false;
 			}
 			pack = pack->next;
@@ -188,7 +198,6 @@ bool AllEmpty(QUEUE *head) {
 
 		queue = queue->next;
 	}
-	printf("all queues are empty!\n");
 	return true;
 }
 
