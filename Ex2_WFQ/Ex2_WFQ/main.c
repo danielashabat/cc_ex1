@@ -24,10 +24,8 @@ int main() {
 	int arrive = 0; // 1 if arrive a packet at time rtime
 	int empty_q = 1; //if 1 can be sent package, if 0 its occupied.
 	int remaining_time = 0; /// remaining time of the current package
-
 	FILE* input = stdin;
 	FILE* output = stdout;
-	
 	Package* new_package =NULL;
 	Package* now_package = NULL;
 	
@@ -59,14 +57,10 @@ int main() {
 				PrintOutput(now_package, output, rtime);
 			}
 		}
-
 		rtime++;
-		
 	} while (flag_eof == 0|| !AllEmpty(head) || empty_q==0);
 
 	ReleaseAll(head,&head);
-	
-
 }
 
 void PrintOutput(Package* now_package, FILE* output, int rtime)
