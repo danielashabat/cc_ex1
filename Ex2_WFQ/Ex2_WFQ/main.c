@@ -1,10 +1,10 @@
 #define _CRT_SECURE_NO_DEPRECATE
 #include <stdio.h>
 
+#include "queue_and_package.h"
 
 #include <stdlib.h>
 #include <string.h>
-#include "queue_and_package.h"
 
 #define ADDRESS_LEN 16
 #define LINE_SIZE 100
@@ -12,7 +12,7 @@
 float check_for_weight(char* all_line);
 
 
-int main(int argc, char* argv[]) {
+int main() {
 	QUEUE* head = NULL;
 	int rtime = 0; // real time
 	/// packet variables
@@ -36,10 +36,9 @@ int main(int argc, char* argv[]) {
 	float x = 0;
 	float next_depart=-1;
 
-	FILE* input = NULL;
-	FILE* output = NULL;
-	input = fopen(argv[1], "r");
-	output = fopen(argv[2], "w");
+	FILE* input = stdin;
+	FILE* output = stdout;
+	
 	Package new_package_obj;
 	Package now_package_obj;
 	Package* new_package = &new_package_obj;
@@ -65,9 +64,7 @@ int main(int argc, char* argv[]) {
 				empty_q = 1;
 			}
 		}
-
 		while (1) { //inserting new packets
-
 			if (flag_eof == 1) break;
 			new_package = CreatePackage(time, Sadd, Sport, Dadd, Dport, length, weight, -1);
 			if (time == rtime) {
@@ -88,7 +85,6 @@ int main(int argc, char* argv[]) {
 			}
 			else break;
 
-
 		}
 		
 		if (arrive == 1) { // packets had arrived
@@ -104,7 +100,7 @@ int main(int argc, char* argv[]) {
 				else {
 					round_t = prev_round_t + (delta_t / active_links_weight_t);
 				}
-				///// checking special case 
+				///// checking special case - if there is a package that ends before this one arrived - in GPS. 
 				next_depart = GetNextDeparture(head, prev_round_t);
 				if ((round_t > next_depart) && (next_depart != (float)-1)) {
 
@@ -116,14 +112,12 @@ int main(int argc, char* argv[]) {
 					next_event_is_arrival = 1;
 				}
 			}
-
 			UpdateLast(head, round_t);
-
 			last_t_event = rtime;
 			prev_round_t = round_t;
 		}
 
-		if (empty_q == 1 && head != NULL) {
+		if (empty_q == 1 && head != NULL) { // sending a new package to the bus
 			now_package = GetPackageWithMinimumLast(head);
 			if (now_package != NULL) {
 				empty_q = 0;
@@ -135,18 +129,14 @@ int main(int argc, char* argv[]) {
 					fprintf(output, "%d: %d %s %d %s %d %d %.2f\n", rtime, now_package->time, now_package->Sadd, now_package->Sport, now_package->Dadd, now_package->Dport, now_package->length, now_package->weight);
 				}
 			}
-
-
 		}
 
-		
 		if (flag_eof == 1 && AllEmpty(head) && empty_q == 1) break;//check if to exit program
 		rtime++;
 		arrive = 0;
 	}
 
 	ReleaseAll(head,&head);
-	printf("program succesfully finished\n");
 	
 
 }
