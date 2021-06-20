@@ -11,6 +11,9 @@
 
 float check_for_weight(char* all_line);
 
+void PrintOutput(Package* now_package, FILE* output, int rtime);
+void extract_arguments(char* line, int* time, char* Sadd, int* Sport, char* Dadd, int* Dport, float* length, float* weight);
+Package* read_and_insert_package(QUEUE** ptr_head, Package* new_package, int* flag_eof);
 
 int main() {
 	QUEUE* head = NULL;
@@ -48,14 +51,8 @@ int main() {
 	char line[LINE_SIZE];
 	fgets(line, LINE_SIZE, input); // return NULL if empty 
 
-	weight = check_for_weight(line);
-	if (weight == 1.0) {
-		weight = -1;
-		sscanf(line, "%d %s %d %s %d %d", &time, Sadd, &Sport, Dadd, &Dport, &length);
-	}
-	else {
-		sscanf(line, "%d %s %d %s %d %d %f", &time, Sadd, &Sport, Dadd, &Dport, &length, &weight);
-	}
+	extract_arguments(line, &time, Sadd, &Sport, Dadd, &Dport, &length, &weight);
+	new_package = CreatePackage(time, Sadd, Sport, Dadd, Dport, length, weight, -1);
 	while (1) { // iterations of time
 
 		if (empty_q == 0) { //checking the bus situation, update remaning time
@@ -64,24 +61,12 @@ int main() {
 				empty_q = 1;
 			}
 		}
-		while (1) { //inserting new packets
+		while (1 ) { //inserting new packets
 			if (flag_eof == 1) break;
-			new_package = CreatePackage(time, Sadd, Sport, Dadd, Dport, length, weight, -1);
-			if (time == rtime) {
+			
+			if (new_package->time == rtime) {
 				arrive = 1;
-				InsertNewPackage(&head, new_package);
-				if (fgets(line, LINE_SIZE, input) == NULL) {
-					flag_eof = 1;
-					break;
-				}
-				weight = check_for_weight(line);
-				if (weight == 1.0) {
-					weight = -1;
-					sscanf(line, "%d %s %d %s %d %d", &time, Sadd, &Sport, Dadd, &Dport, &length);
-				}
-				else {
-					sscanf(line, "%d %s %d %s %d %d %f", &time, Sadd, &Sport, Dadd, &Dport, &length, &weight);
-				}
+				new_package = read_and_insert_package(&head,new_package, &flag_eof);
 			}
 			else break;
 
@@ -122,12 +107,7 @@ int main() {
 			if (now_package != NULL) {
 				empty_q = 0;
 				remaining_time = now_package->length - 1;
-				if (now_package->print_weight == 0) {
-					fprintf(output, "%d: %d %s %d %s %d %d\n", rtime, now_package->time, now_package->Sadd, now_package->Sport, now_package->Dadd, now_package->Dport, now_package->length);
-				}
-				else {
-					fprintf(output, "%d: %d %s %d %s %d %d %.2f\n", rtime, now_package->time, now_package->Sadd, now_package->Sport, now_package->Dadd, now_package->Dport, now_package->length, now_package->weight);
-				}
+				PrintOutput(now_package, output, rtime);
 			}
 		}
 
@@ -141,6 +121,16 @@ int main() {
 
 }
 
+void PrintOutput(Package* now_package, FILE* output, int rtime)
+{
+	if (now_package->print_weight == 0) {
+		fprintf(output, "%d: %d %s %d %s %d %d\n", rtime, now_package->time, now_package->Sadd, now_package->Sport, now_package->Dadd, now_package->Dport, now_package->length);
+	}
+	else {
+		fprintf(output, "%d: %d %s %d %s %d %d %.2f\n", rtime, now_package->time, now_package->Sadd, now_package->Sport, now_package->Dadd, now_package->Dport, now_package->length, now_package->weight);
+	}
+}
+
 float check_for_weight(char* all_line) {
 	int count = 0;
 	int len_line = strlen(all_line);
@@ -152,4 +142,34 @@ float check_for_weight(char* all_line) {
 	else return 0.0;
 }
 
+Package* read_and_insert_package(QUEUE** ptr_head, Package* new_package, int * flag_eof ) {
+	char line[LINE_SIZE];
+	int time;
+	char Sadd[ADDRESS_LEN];
+	int Sport;
+	char Dadd[ADDRESS_LEN];
+	int Dport;
+	int length;
+	float weight;
+		
+		InsertNewPackage(ptr_head, new_package);
+		if (fgets(line, LINE_SIZE, stdin) == NULL) {
+			*flag_eof = 1;
+			return NULL;
+		}
+		extract_arguments(line, &time, Sadd, &Sport, Dadd, &Dport, &length, &weight);
+		new_package = CreatePackage(time, Sadd, Sport, Dadd, Dport, length, weight, -1);
+		return new_package;
+	
+}
 
+void extract_arguments(char* line, int *time,char* Sadd,int*Sport,char* Dadd, int* Dport,float*length, float* weight) {
+	float ret_val = check_for_weight(line);
+	if (ret_val == 1.0) {
+		*weight = -1;
+		sscanf(line, "%d %s %d %s %d %d", time, Sadd, Sport, Dadd, Dport, length);
+	}
+	else {
+		sscanf(line, "%d %s %d %s %d %d %f", time, Sadd, Sport, Dadd, Dport, length, weight);
+	}
+}
