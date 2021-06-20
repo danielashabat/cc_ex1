@@ -12,47 +12,31 @@
 float check_for_weight(char* all_line);
 
 void PrintOutput(Package* now_package, FILE* output, int rtime);
-void extract_arguments(char* line, int* time, char* Sadd, int* Sport, char* Dadd, int* Dport, float* length, float* weight);
+void extract_arguments(char* line, int* time, char* Sadd, int* Sport, char* Dadd, int* Dport, int* length, float* weight);
 Package* read_and_insert_package(QUEUE** ptr_head, Package* new_package, int* flag_eof);
+float UpdateRound(QUEUE* head, float prev_round_t, int rtime, float last_t_event);
 
 int main() {
 	QUEUE* head = NULL;
 	int rtime = 0; // real time
-	/// packet variables
-	int time;
-	char Sadd[ADDRESS_LEN];
-	int Sport;
-	char Dadd[ADDRESS_LEN];
-	int Dport;
-	int length;
 	int flag_eof = 0;
-	float weight = 0;
-	float last;
 	float last_t_event = 0;
 	int arrive = 0; // 1 if arrive a packet at time rtime
 	float round_t = 0;
-	float active_links_weight_t = 0;
-	float delta_t = 0;
 	int empty_q = 1; //if 1 can be sent package, if 0 its occupied.
 	int remaining_time = 0; /// remaining time of the current package
 	float prev_round_t = 0;
 	float x = 0;
 	float next_depart=-1;
-
+	bool next_event_is_arrival = false;
 	FILE* input = stdin;
 	FILE* output = stdout;
 	
-	Package new_package_obj;
-	Package now_package_obj;
-	Package* new_package = &new_package_obj;
-	Package* now_package = &now_package_obj;
+	Package* new_package =NULL;
+	Package* now_package = NULL;
 	
-
-	char line[LINE_SIZE];
-	fgets(line, LINE_SIZE, input); // return NULL if empty 
-
-	extract_arguments(line, &time, Sadd, &Sport, Dadd, &Dport, &length, &weight);
-	new_package = CreatePackage(time, Sadd, Sport, Dadd, Dport, length, weight, -1);
+	//insert first package
+	new_package = read_and_insert_package(&head, new_package, &flag_eof);
 	while (1) { // iterations of time
 
 		if (empty_q == 0) { //checking the bus situation, update remaning time
@@ -61,40 +45,27 @@ int main() {
 				empty_q = 1;
 			}
 		}
-		while (1 ) { //inserting new packets
-			if (flag_eof == 1) break;
-			
-			if (new_package->time == rtime) {
+		while (flag_eof==0 && new_package->time == rtime) { //inserting new packets
 				arrive = 1;
 				new_package = read_and_insert_package(&head,new_package, &flag_eof);
-			}
-			else break;
-
 		}
 		
 		if (arrive == 1) { // packets had arrived
-			int next_event_is_arrival = 0;
+			 next_event_is_arrival = false;
 
-			while (next_event_is_arrival == 0) {
-				/// here we are going to calculate roundt
-				delta_t = rtime - last_t_event;
-				active_links_weight_t = SumActiveLinksWeights(head, prev_round_t);
-				if (active_links_weight_t == 0) {
-					round_t = prev_round_t;
-				}
-				else {
-					round_t = prev_round_t + (delta_t / active_links_weight_t);
-				}
-				///// checking special case - if there is a package that ends before this one arrived - in GPS. 
+			while (next_event_is_arrival == false) {
+				round_t = UpdateRound(head, prev_round_t, rtime, last_t_event);
+
+				// checking special case - if there is a package that ends before this one arrived - in GPS. 
 				next_depart = GetNextDeparture(head, prev_round_t);
 				if ((round_t > next_depart) && (next_depart != (float)-1)) {
 
-					x = (next_depart - prev_round_t) * active_links_weight_t;
+					x = (next_depart - prev_round_t) * SumActiveLinksWeights(head, prev_round_t);
 					last_t_event = last_t_event + x;
 					prev_round_t = next_depart;
 				}
 				else {
-					next_event_is_arrival = 1;
+					next_event_is_arrival = true;
 				}
 			}
 			UpdateLast(head, round_t);
@@ -152,7 +123,9 @@ Package* read_and_insert_package(QUEUE** ptr_head, Package* new_package, int * f
 	int length;
 	float weight;
 		
+	if (new_package != NULL) {
 		InsertNewPackage(ptr_head, new_package);
+	}
 		if (fgets(line, LINE_SIZE, stdin) == NULL) {
 			*flag_eof = 1;
 			return NULL;
@@ -163,7 +136,7 @@ Package* read_and_insert_package(QUEUE** ptr_head, Package* new_package, int * f
 	
 }
 
-void extract_arguments(char* line, int *time,char* Sadd,int*Sport,char* Dadd, int* Dport,float*length, float* weight) {
+void extract_arguments(char* line, int *time,char* Sadd,int*Sport,char* Dadd, int* Dport,int*length, float* weight) {
 	float ret_val = check_for_weight(line);
 	if (ret_val == 1.0) {
 		*weight = -1;
@@ -171,5 +144,17 @@ void extract_arguments(char* line, int *time,char* Sadd,int*Sport,char* Dadd, in
 	}
 	else {
 		sscanf(line, "%d %s %d %s %d %d %f", time, Sadd, Sport, Dadd, Dport, length, weight);
+	}
+}
+
+float UpdateRound(QUEUE* head,float prev_round_t, int rtime, float last_t_event) {
+	float delta_t = rtime - last_t_event;
+	float active_links_weight_t = SumActiveLinksWeights(head, prev_round_t);
+
+	if (active_links_weight_t == 0) {
+		return prev_round_t;
+	}
+	else {
+		return prev_round_t + (delta_t / active_links_weight_t);
 	}
 }
